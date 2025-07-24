@@ -1,11 +1,24 @@
-from openai import OpenAI
+import requests
+import json
+from config import token2
 
-key = ''
-client = OpenAI(api_key=key)
 
-response = client.responses.create(
-  model="gpt-4.1",
-  input="Tell me a three sentence bedtime story about a unicorn."
+response = requests.post(
+    url="https://openrouter.ai/api/v1/chat/completions",
+    headers={
+        "Authorization": f"Bearer {token2}",
+        "Content-Type": "application/json"
+    },
+    data=json.dumps({
+        "model": "qwen/qwen3-235b-a22b-07-25:free",
+        "messages": [
+            {
+                "role": "user",
+                "content": "как дела?)"
+            }
+        ],
+
+    })
 )
 
-print(response)
+print(json.loads(response.text)['choices'][0]['message']['content'])
