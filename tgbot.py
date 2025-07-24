@@ -7,6 +7,7 @@ from storage import Storage
 from loguru import logger
 from telebot import types
 from config import token, host, user, password, db_name
+from test_auth import main
 
 
 bot = telebot.TeleBot(token)
@@ -35,4 +36,9 @@ def callback_query(call):
                 show_alert=True  # Это показывает всплывающее окно
             )
 
+        elif data['value'] == 'google':
+            events = main()
+            bot.send_message(call.message.chat.id, str(events))
+
+logger.info('Bot is running')
 bot.polling(none_stop=True)
