@@ -5,10 +5,38 @@ import json
 # Set up the base URL for the local Ollama API
 url = "http://localhost:11434/api/chat"
 
+# 1. Системный промпт — поведение модели
+system_prompt = {
+    "role": "system",
+    "content": "Ты — дружелюбный и полезный русскоязычный помощник. Отвечай понятно и кратко."
+}
+
+# 2. Индивидуальные характеристики пользователя (например, из базы)
+memory_prompt = {
+    "role": "system",
+    "name": "memory",  # можно опустить, если модель не поддерживает именные роли
+    "content": "Пользователь дружелюбный собеседник, но любит краткость в сообщениях"
+}
+
+# 3. История диалога
+history = [
+    {"role": "user", "content": "Привет!"},
+    {"role": "assistant", "content": "Привет! Чем могу помочь?"},
+    {"role": "user", "content": "Меня зовут Егор"},
+    {"role": "assistant", "content": "Приятно познакомиться!"}
+]
+
+# 4. Новый запрос
+# (можно добавить на лету, или оставить `history[-1]` как актуальный ввод)
+user_input = {"role": "user", "content": "как меня зовут?"}
+
+# 5. Финальный список сообщений
+messages = [system_prompt, memory_prompt] + history + [user_input]
 # Define the payload (your input prompt)
 payload = {
     "model": "gemma3:1b",  # Replace with the model name you're using
-    "messages": [{"role": "user", "content": "как дела?"}]
+    "messages": messages,
+    'temperature': 0.75
 }
 
 # Send the HTTP POST request with streaming enabled
