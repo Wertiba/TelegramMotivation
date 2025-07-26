@@ -55,5 +55,6 @@ def callback_query(call):
             events = main()
             bot.send_message(call.message.chat.id, str(events))
 
-logger.info('Bot is running')
-bot.polling(none_stop=True)
+if __name__ == '__main__':
+    logger.info('Bot is running')
+    bot.polling(none_stop=True)
