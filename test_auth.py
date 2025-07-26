@@ -1,5 +1,6 @@
 import os.path
-
+import uuid
+from google_auth_oauthlib.flow import Flow
 from datetime import datetime, timedelta
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -9,7 +10,13 @@ from googleapiclient.errors import HttpError
 
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "openid"
+]
+pairs = {}
 
 
 def auth_window():
@@ -62,6 +69,25 @@ def main():
   creds = auth_window()
   events = get_events(creds)
   return events
+
+def get_auth_url(telegram_user_id):
+    global pairs
+    state = str(uuid.uuid4())
+    with open(f'{state}.txt', 'w') as f:
+        f.write(str(telegram_user_id))
+
+    print(pairs)
+    flow = Flow.from_client_secrets_file(
+        'credentials.json',
+        scopes=SCOPES,
+        redirect_uri="http://localhost:5000/oauth2callback"
+    )
+    auth_url, _ = flow.authorization_url(state=state, access_type='offline', include_granted_scopes='true')
+    return auth_url
+
+def retrieve_user_by_state(state):
+    with open(f'{state}.txt', 'r') as f:
+        return int(f.read())
 
 if __name__ == "__main__":
     main()
