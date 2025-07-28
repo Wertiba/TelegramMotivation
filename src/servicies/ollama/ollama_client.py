@@ -10,12 +10,13 @@ class OllamaClient:
     def __init__(self, url, model):
         self.url = url
         self.model = model
-        self.storage = Storage(None, None, None, None)
+        self.storage = Storage()
         self.logger = Logger()
 
-    def get_message(self, promt):
+    def get_message(self, content):
         history = self.storage.get_user_history(None)
-        message = [system_prompt, memory_prompt] + history + [promt]
+        promt = {"role": "user", "content": content}
+        message = [system_prompt, memory_prompt] + history + [promt] if history else [system_prompt, memory_prompt] + [promt]
         return message
 
     def process_prompt(self, promt):
@@ -25,6 +26,7 @@ class OllamaClient:
             "messages": message,
             'temperature': temperarure
         }
+
 
         response = requests.post(self.url, json=payload, stream=True)
 
@@ -39,5 +41,6 @@ class OllamaClient:
                             result += json_data["message"]["content"]
                     except json.JSONDecodeError:
                         self.logger.error(f"Error while processing ollama request: failed to parse line: {line}")
+            return result
         else:
             self.logger.error(f"Error while processing ollama request: {response.status_code} status code: {response.text}")
