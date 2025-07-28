@@ -16,8 +16,6 @@ SCOPES = [
     "https://www.googleapis.com/auth/userinfo.email",
     "openid"
 ]
-pairs = {}
-
 
 def auth_window():
     flow = InstalledAppFlow.from_client_secrets_file(
@@ -71,12 +69,10 @@ def main():
   return events
 
 def get_auth_url(telegram_user_id):
-    global pairs
     state = str(uuid.uuid4())
     with open(f'{state}.txt', 'w') as f:
         f.write(str(telegram_user_id))
 
-    print(pairs)
     flow = Flow.from_client_secrets_file(
         'credentials.json',
         scopes=SCOPES,
