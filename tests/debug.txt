@@ -1,0 +1,1 @@
+2025-07-28 23:26:25 | ERROR | src.logger:error:38 - Error while processing ollama request: 400 status code: {"error":"json: cannot unmarshal bool into Go struct field ChatRequest.messages of type api.Alias"}
