@@ -6,7 +6,7 @@ from src.servicies.DB.storage import Storage
 gemini = OllamaClient(url, model)
 storage = Storage()
 
-def deEmojify(text):
+def de_emojify(text):
     regrex_pattern = re.compile(pattern = "["
                                 u"\U00000000-\U00000009"
                                 u"\U0000000B-\U0000001F"
@@ -20,7 +20,7 @@ def deEmojify(text):
 while True:
     request = str(input('введите запрос: '))
     storage.save_request(1, 'user', request)
-    answer = gemini.process_prompt(request)
+    answer = gemini.process_prompt(request, 1)
     print(answer + '\n')
 
-    storage.save_request(1, 'assistant', deEmojify(answer))
+    storage.save_request(1, 'assistant', de_emojify(answer))
