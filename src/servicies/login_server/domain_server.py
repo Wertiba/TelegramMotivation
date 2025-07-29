@@ -5,7 +5,7 @@ from google_auth_oauthlib.flow import Flow
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from src.bot import bot
-from src.servicies.o2auth import retrieve_user_by_state, SCOPES
+from src.servicies.google_auth.o2auth import retrieve_user_by_state, SCOPES
 
 app = FastAPI()
 CREDS = {}
@@ -13,7 +13,7 @@ CREDS = {}
 async def callback(request: Request):
     state = request.query_params.get('state')
     flow = Flow.from_client_secrets_file(
-        'credentials.json',
+        r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\servicies\google_auth\credentials.json",
         scopes=SCOPES,
         state=state,
         redirect_uri='http://localhost:5000/oauth2callback'
@@ -46,6 +46,9 @@ async def callback(request: Request):
         </html>
     """, status_code=200)
 
-if __name__ == "__main__":
+def run_uvicorn():
     import uvicorn
     uvicorn.run("domain_server:app", host="0.0.0.0", port=5000, reload=True)
+
+if __name__ == '__main__':
+    run_uvicorn()

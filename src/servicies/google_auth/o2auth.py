@@ -71,11 +71,11 @@ def main():
 
 def get_auth_url(telegram_user_id):
     state = str(uuid.uuid4())
-    with open(f'{state}.txt', 'w') as f:
+    with open(fr'C:\Users\Wertiba\PycharmProjects\TelegramMotivation\garbage\{state}.txt', 'w') as f:
         f.write(str(telegram_user_id))
 
     flow = Flow.from_client_secrets_file(
-        'credentials.json',
+        r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\servicies\google_auth\credentials.json",
         scopes=SCOPES,
         redirect_uri="http://localhost:5000/oauth2callback"
     )
@@ -83,7 +83,7 @@ def get_auth_url(telegram_user_id):
     return auth_url
 
 def retrieve_user_by_state(state):
-    with open(f'{state}.txt', 'r') as f:
+    with open(fr'C:\Users\Wertiba\PycharmProjects\TelegramMotivation\garbage\{state}.txt', 'r') as f:
         return int(f.read())
 
 if __name__ == "__main__":

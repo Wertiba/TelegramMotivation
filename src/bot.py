@@ -1,11 +1,13 @@
 import telebot
 import json
+import time
+import requests
 
 from telebot import types
 
 from src.logger import Logger
 from src.config import token
-from src.servicies.o2auth import main, get_auth_url
+from src.servicies.google_auth.o2auth import main, get_auth_url
 from src.servicies.DB.storage import Storage
 
 
@@ -35,8 +37,8 @@ def start_handler(message):
 
 
     markup = types.InlineKeyboardMarkup()
-    btn_google_calendar = types.InlineKeyboardButton('Привязать google', callback_data=json.dumps({'level': 'calendar', 'value': 'google'}))
-    # btn_google_calendar = types.InlineKeyboardButton("Войти через Google", url=get_auth_url(message.from_user.id))
+    # btn_google_calendar = types.InlineKeyboardButton('Привязать google', callback_data=json.dumps({'level': 'calendar', 'value': 'google'}))
+    btn_google_calendar = types.InlineKeyboardButton("Войти через Google", url=get_auth_url(message.from_user.id))
     btn_yandex_calendar = types.InlineKeyboardButton('Привязать yandex', callback_data=json.dumps({'level': 'calendar', 'value': 'yandex'}))
     markup.row(btn_google_calendar, btn_yandex_calendar)
 
@@ -60,6 +62,15 @@ def callback_query(call):
             events = main()
             bot.send_message(call.message.chat.id, str(events))
 
+
+def run_bot():
+    while True:
+        try:
+            logger.info("bot is running")
+            bot.polling(none_stop=True)
+        except requests.exceptions.ConnectionError:
+            logger.error("bot isn't running: Connection error")
+            time.sleep(5)
+
 if __name__ == '__main__':
-    logger.info('Bot is running')
-    bot.polling(none_stop=True)
+    run_bot()
