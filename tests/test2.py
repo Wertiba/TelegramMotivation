@@ -1,7 +1,7 @@
 import re
-from src.servicies.ollama.ollama_client import OllamaClient
-from src.servicies.ollama.ollama_settings import url, model
-from src.servicies.DB.storage import Storage
+from src.services.ollama.ollama_client import OllamaClient
+from src.services.ollama.ollama_settings import url, model
+from src.services.DB.storage import Storage
 
 gemini = OllamaClient(url, model)
 storage = Storage()

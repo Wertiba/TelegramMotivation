@@ -7,8 +7,8 @@ from telebot import types
 
 from src.logger import Logger
 from src.config import token
-from src.servicies.google_auth.o2auth import main, get_auth_url
-from src.servicies.DB.storage import Storage
+from src.services.google_auth.o2auth import main, get_auth_url
+from src.services.DB.storage import Storage
 
 
 bot = telebot.TeleBot(token)
@@ -71,6 +71,3 @@ def run_bot():
         except requests.exceptions.ConnectionError:
             logger.error("bot isn't running: Connection error")
             time.sleep(5)
-
-if __name__ == '__main__':
-    run_bot()

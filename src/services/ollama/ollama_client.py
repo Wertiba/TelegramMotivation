@@ -1,8 +1,8 @@
 import requests
 import json
 
-from src.servicies.ollama.ollama_settings import system_prompt, memory_prompt, temperarure
-from src.servicies.DB.storage import Storage
+from src.services.ollama.ollama_settings import system_prompt, memory_prompt, temperarure
+from src.services.DB.storage import Storage
 from src.logger import Logger
 
 

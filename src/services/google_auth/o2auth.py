@@ -75,7 +75,7 @@ def get_auth_url(telegram_user_id):
         f.write(str(telegram_user_id))
 
     flow = Flow.from_client_secrets_file(
-        r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\servicies\google_auth\credentials.json",
+        r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\services\google_auth\credentials.json",
         scopes=SCOPES,
         redirect_uri="http://localhost:5000/oauth2callback"
     )
