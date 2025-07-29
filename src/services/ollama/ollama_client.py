@@ -1,9 +1,10 @@
 import requests
 import json
 
-from src.services.ollama.ollama_settings import system_prompt, memory_prompt, temperarure
+from src.services.ollama.ollama_settings import system_prompt, memory_prompt, temperarure, few_shot
 from src.services.DB.storage import Storage
 from src.logger import Logger
+from tests.test2 import de_emojify
 
 
 class OllamaClient:
@@ -25,10 +26,10 @@ class OllamaClient:
     def get_message(self, content, idusers):
         history = self.get_history(idusers)
         user_prompt = {"role": "user", "content": content}
-        message = [system_prompt, memory_prompt] + history + [user_prompt] if history else [system_prompt, memory_prompt] + [user_prompt]
+        message = [system_prompt, memory_prompt] + few_shot + history + [user_prompt] if history else [system_prompt, memory_prompt] + [user_prompt]
         return message
 
-    def process_prompt(self, content, idusers):
+    def process_prompt(self, idusers, content):
         message = self.get_message(content, idusers)
         payload = {
             "model": self.model,
@@ -49,6 +50,8 @@ class OllamaClient:
                             result += json_data["message"]["content"]
                     except json.JSONDecodeError:
                         self.logger.error(f"Error while processing ollama request: failed to parse line: {line}")
+
+            self.storage.save_request(idusers, 'assistant', de_emojify(result))
             return result
         else:
             self.logger.error(f"Error while processing ollama request: {response.status_code} status code: {response.text}")

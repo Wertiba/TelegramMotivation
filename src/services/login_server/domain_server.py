@@ -25,7 +25,7 @@ async def callback(request: Request):
     flow.fetch_token(authorization_response=str(request.url))
     creds = flow.credentials
     user_tgid = auth.retrieve_user_by_state(state)
-    storage.save_creds(user_tgid, creds)
+    storage.save_creds(user_tgid, creds.to_json())
     bot.send_message(user_tgid, 'Успешно!')
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")

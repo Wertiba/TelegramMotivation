@@ -4,17 +4,24 @@ import time
 import requests
 
 from telebot import types
-
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from src.logger import Logger
 from src.bot_config import token
 from src.services.google_integration.o2auth import Authentication
-from src.services.google_integration.calender_client import main
+from src.services.google_integration.calender_client import CalenderClient
+from src.services.ollama.ollama_client import OllamaClient
+from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
+from src.services.google_integration.settings import SCOPES
+from tests.test2 import de_emojify
 
 auth = Authentication()
 bot = telebot.TeleBot(token)
 storage = Storage()
 logger = Logger()
+calender = CalenderClient()
+gemma = OllamaClient(url, model)
 
 
 @bot.message_handler(commands=['start'])
@@ -33,8 +40,29 @@ def start_handler(message):
 
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
-    pass
+    creds = None
+    token = json.loads(storage.get_token(message.chat.id)[0])
 
+    if token:
+        creds = Credentials.from_authorized_user_info(token, SCOPES)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            storage.save_creds(message.chat.id, creds.to_json())
+        else:
+            markup = types.InlineKeyboardMarkup()
+            btn = types.InlineKeyboardButton("повторить вход", url=auth.get_auth_url(message.chat.id))
+            markup.row(btn)
+            bot.send_message(message.chat.id, 'пожалуйста, войдите заново', reply_markup=markup)
+            return
+
+    events = calender.get_events(creds)
+    idusers = storage.get_idusers(message.chat.id)
+    prompt = f'мне нужна мотивация, сегодня меня ждут такие события: {events}'
+    storage.save_request(idusers, 'user', de_emojify(prompt))
+    motivation = gemma.process_prompt(idusers, prompt)
+    bot.send_message(message.chat.id, motivation)
 
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_query(call):
@@ -46,7 +74,7 @@ def callback_query(call):
             bot.answer_callback_query(
                 callback_query_id=call.id,
                 text='Coming soon)',
-                show_alert=True  # Это показывает всплывающее окно
+                show_alert=True
             )
 
         elif data['value'] == 'google':
