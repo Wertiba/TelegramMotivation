@@ -5,26 +5,29 @@ from google_auth_oauthlib.flow import Flow
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from src.bot import bot
-from src.services.google_auth.o2auth import retrieve_user_by_state, SCOPES
+from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI
+from src.services.google_integration.o2auth import Authentication
+from src.services.DB.storage import Storage
 
 app = FastAPI()
-CREDS = {}
+auth = Authentication()
+storage = Storage()
+
 @app.get("/oauth2callback")
 async def callback(request: Request):
     state = request.query_params.get('state')
     flow = Flow.from_client_secrets_file(
-        r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\services\google_auth\credentials.json",
+        CREDS_PATH,
         scopes=SCOPES,
         state=state,
-        redirect_uri='http://localhost:5000/oauth2callback'
+        redirect_uri=REDIRECT_URI
     )
     flow.fetch_token(authorization_response=str(request.url))
     creds = flow.credentials
-    telegram_user_id = retrieve_user_by_state(state)  # найти ID по state
-    CREDS[telegram_user_id] = creds
-    bot.send_message(telegram_user_id, 'Успешно')
+    user_tgid = auth.retrieve_user_by_state(state)
+    storage.save_creds(user_tgid, creds)
+    bot.send_message(user_tgid, 'Успешно!')
 
-    # Собираем ссылку deep link обратно в телеграм
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""
         <html>

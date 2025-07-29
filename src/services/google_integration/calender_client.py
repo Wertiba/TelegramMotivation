@@ -1,22 +1,8 @@
-import os.path
-import uuid
-
-from google_auth_oauthlib.flow import Flow
 from datetime import datetime, timedelta
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-
-
-# If modifying these scopes, delete the file token.json.
-SCOPES = [
-    "https://www.googleapis.com/auth/calendar.readonly",
-    "https://www.googleapis.com/auth/userinfo.profile",
-    "https://www.googleapis.com/auth/userinfo.email",
-    "openid"
-]
+from src.services.google_integration.settings import SCOPES
 
 def auth_window():
     flow = InstalledAppFlow.from_client_secrets_file(
@@ -68,23 +54,3 @@ def main():
   creds = auth_window()
   events = get_events(creds)
   return events
-
-def get_auth_url(telegram_user_id):
-    state = str(uuid.uuid4())
-    with open(fr'C:\Users\Wertiba\PycharmProjects\TelegramMotivation\garbage\{state}.txt', 'w') as f:
-        f.write(str(telegram_user_id))
-
-    flow = Flow.from_client_secrets_file(
-        r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\services\google_auth\credentials.json",
-        scopes=SCOPES,
-        redirect_uri="http://localhost:5000/oauth2callback"
-    )
-    auth_url, _ = flow.authorization_url(state=state, access_type='offline', include_granted_scopes='true')
-    return auth_url
-
-def retrieve_user_by_state(state):
-    with open(fr'C:\Users\Wertiba\PycharmProjects\TelegramMotivation\garbage\{state}.txt', 'r') as f:
-        return int(f.read())
-
-if __name__ == "__main__":
-    main()
