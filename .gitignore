@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test & coverage
+.coverage
+htmlcov/
+.cache/
+.pytest_cache/
+
+# Build & distribution
+build/
+dist/
+*.spec
+
+# Local config
+src/services/DB/database_config.py
+src/services/google_integration/credentials.json
+src/bot_config.py
+garbage/
+TelegramMotivationDB.mwb.bak
+TelegramMotivationDB.mwb
+debug.txt
+
+
+# Environment variables
+.env
+.env.*
