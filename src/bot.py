@@ -32,40 +32,33 @@ def start_handler(message):
     if not storage.is_user_already_registered(message.chat.id):
         storage.add_new_user(message.chat.id, message.from_user.first_name)
 
-    markup = types.InlineKeyboardMarkup()
-    # btn_google_calendar = types.InlineKeyboardButton('Привязать google', callback_data=json.dumps({'level': 'calendar', 'value': 'google'}))
-    btn_google_calendar = types.InlineKeyboardButton("Войти через Google", url=auth.get_auth_url(message.chat.id))
-    btn_yandex_calendar = types.InlineKeyboardButton('Привязать yandex', callback_data=json.dumps({'level': 'calendar', 'value': 'yandex'}))
-    markup.row(btn_google_calendar, btn_yandex_calendar)
+    token = storage.get_token(message.chat.id)
+    if token and token[0] and message.chat.id != int(os.getenv('MY_ID')):
+        bot.send_message(message.chat.id, 'И снова здравствуйте!')
 
-    bot.send_message(message.chat.id, 'Приветствую!', reply_markup=markup)
+    else:
+
+        markup = types.InlineKeyboardMarkup()
+        # btn_google_calendar = types.InlineKeyboardButton('Привязать google', callback_data=json.dumps({'level': 'calendar', 'value': 'google'}))
+        btn_google_calendar = types.InlineKeyboardButton("Привязать google", url=auth.get_auth_url(message.chat.id))
+        btn_yandex_calendar = types.InlineKeyboardButton('Привязать yandex', callback_data=json.dumps({'level': 'calendar', 'value': 'yandex'}))
+        markup.row(btn_google_calendar, btn_yandex_calendar)
+
+        bot.send_message(message.chat.id, 'Приветствую! чтобы пользоваться ботом, надо привязать свой календарь', reply_markup=markup)
 
 
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
-    creds = None
-    token = storage.get_token(message.chat.id)
+    motivation_functional(message.chat.id)
 
-    if token and token[0]:
-        creds = Credentials.from_authorized_user_info(json.loads(token[0]), SCOPES)
+@bot.message_handler(commands=['about'])
+def motivation_handler(message):
+    bot.send_message(message.chat.id, 'это мы')
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            storage.save_creds(message.chat.id, creds.to_json())
-        else:
-            markup = types.InlineKeyboardMarkup()
-            btn = types.InlineKeyboardButton("повторить вход", url=auth.get_auth_url(message.chat.id))
-            markup.row(btn)
-            bot.send_message(message.chat.id, 'пожалуйста, войдите заново', reply_markup=markup)
-            return
+@bot.message_handler(commands=['settings'])
+def motivation_handler(message):
+    bot.send_message(message.chat.id, 'текущие настройки:')
 
-    events = calender.get_events(creds)
-    idusers = storage.get_idusers(message.chat.id)
-    prompt = str(events)
-    storage.save_request(idusers, 'user', prompt)
-    motivation = gemma.process_prompt(idusers, prompt)
-    bot.send_message(message.chat.id, motivation)
 
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_query(call):
@@ -82,6 +75,32 @@ def callback_query(call):
 
         elif data['value'] == 'google':
             pass
+
+
+def motivation_functional(tgid):
+    creds = None
+    token = storage.get_token(tgid)
+
+    if token and token[0]:
+        creds = Credentials.from_authorized_user_info(json.loads(token[0]), SCOPES)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            storage.save_creds(tgid, creds.to_json())
+        else:
+            markup = types.InlineKeyboardMarkup()
+            btn = types.InlineKeyboardButton("повторить вход", url=auth.get_auth_url(tgid))
+            markup.row(btn)
+            bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)
+            return
+
+    events = calender.get_events(creds)
+    prompt = str(events)
+    idusers = storage.get_idusers(tgid)
+    storage.save_request(idusers, 'user', prompt)
+    motivation = gemma.process_prompt(idusers, prompt)
+    bot.send_message(tgid, motivation, parse_mode='Markdown')
 
 
 def run_bot():

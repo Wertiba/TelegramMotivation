@@ -11,9 +11,6 @@ class CalenderClient:
         try:
             service = build("calendar", "v3", credentials=creds)
 
-            timezone_result = service.settings().get(setting="timezone").execute()
-            timezone = timezone_result.get("value")
-
             # Начало дня (00:00:00)
             start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             # Конец дня (23:59:59)

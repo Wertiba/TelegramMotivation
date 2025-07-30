@@ -30,6 +30,40 @@ class Storage:
             if conn:
                 conn.close()
 
+    def _fetch_one(self, query, fields):
+        try:
+            with self.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, fields)
+                    return cur.fetchone()
+        except Exception as e:
+            print(e)
+
+    def _fetch_many(self, query, fields):
+        try:
+            with self.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, fields)
+                    return cur.fetchall()
+        except Exception as e:
+            print(e)
+
+    def _execute(self, query, fields):
+        try:
+            with self.connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(query, fields)
+        except Exception as e:
+            print(e)
+
+
+    def set_timezone(self, timezone, tgid):
+        self._execute("UPDATE users SET timezone = %s WHERE tgid = %s", (timezone, tgid))
+
+    def get_timezone(self, tgid):
+        return self._fetch_one("SELECT timezone FROM users WHERE tgid = %s", (tgid,))
+
+
     def add_new_user(self, tgid, name):
         with self.connection() as conn:
             with conn.cursor() as cur:

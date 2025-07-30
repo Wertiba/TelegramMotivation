@@ -3,6 +3,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 from dotenv import load_dotenv, find_dotenv
 from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from src.bot import bot
@@ -30,7 +31,12 @@ async def callback(request: Request):
     creds = flow.credentials
     user_tgid = auth.retrieve_user_by_state(state)
     storage.save_creds(user_tgid, creds.to_json())
-    bot.send_message(user_tgid, 'Успешно!')
+    service = build("calendar", "v3", credentials=creds)
+    timezone_result = service.settings().get(setting="timezone").execute()
+    timezone = timezone_result.get("value")
+    storage.set_timezone(str(timezone), user_tgid)
+
+    bot.send_message(user_tgid, 'Авторизация прошла спешно!')
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""
