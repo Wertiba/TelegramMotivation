@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from src.services.google_integration.settings import SCOPES
 
 
 class CalenderClient:

@@ -1,6 +1,7 @@
 import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
+from dotenv import load_dotenv, find_dotenv
 from google_auth_oauthlib.flow import Flow
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -8,10 +9,13 @@ from src.bot import bot
 from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI
 from src.services.google_integration.o2auth import Authentication
 from src.services.DB.storage import Storage
+from src.services.DB.database_config import charset, autocommit
+
+load_dotenv(find_dotenv())
 
 app = FastAPI()
 auth = Authentication()
-storage = Storage()
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 
 @app.get("/oauth2callback")
 async def callback(request: Request):

@@ -1,17 +1,20 @@
 import requests
 import json
+import os
 
+from dotenv import load_dotenv, find_dotenv
 from src.services.ollama.ollama_settings import system_prompt, memory_prompt, temperarure, few_shot
 from src.services.DB.storage import Storage
 from src.logger import Logger
-from tests.test2 import de_emojify
+from src.services.DB.database_config import charset, autocommit
 
 
 class OllamaClient:
     def __init__(self, url, model):
+        load_dotenv(find_dotenv())
         self.url = url
         self.model = model
-        self.storage = Storage()
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
         self.logger = Logger()
 
     def get_history(self, idusers):

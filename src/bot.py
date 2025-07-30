@@ -2,22 +2,26 @@ import telebot
 import json
 import time
 import requests
+import os
 
 from telebot import types
+from dotenv import load_dotenv, find_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from src.logger import Logger
-from src.bot_config import token
 from src.services.google_integration.o2auth import Authentication
 from src.services.google_integration.calender_client import CalenderClient
 from src.services.ollama.ollama_client import OllamaClient
 from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
 from src.services.google_integration.settings import SCOPES
+from src.services.DB.database_config import charset, autocommit
+
+load_dotenv(find_dotenv())
 
 auth = Authentication()
-bot = telebot.TeleBot(token)
-storage = Storage()
+bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 logger = Logger()
 calender = CalenderClient()
 gemma = OllamaClient(url, model)

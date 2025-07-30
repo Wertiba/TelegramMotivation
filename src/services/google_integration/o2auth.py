@@ -1,12 +1,16 @@
 import uuid
+import os
 
+from dotenv import load_dotenv, find_dotenv
 from google_auth_oauthlib.flow import Flow
 from src.services.google_integration.settings import SCOPES, REDIRECT_URI, CREDS_PATH
 from src.services.DB.storage import Storage
+from src.services.DB.database_config import charset, autocommit
 
 class Authentication:
     def __init__(self):
-        self.storage = Storage()
+        load_dotenv(find_dotenv())
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 
 
     def get_auth_url(self, user_tgid):

@@ -4,17 +4,16 @@ import datetime
 from contextlib import contextmanager
 from loguru import logger
 
-from src.services.DB.database_config import host, user, password, db_name, charset
 
 
 class Storage:
-    def __init__(self):
+    def __init__(self, host, user, password, db_name, autocommit, charset):
         self.db_config = {
             'host': host,
             'user': user,
             'password': password,
             'database': db_name,
-            'autocommit': True,
+            'autocommit': autocommit,
             'charset': charset
         }
 
