@@ -1,10 +1,13 @@
+import os
+from dotenv import load_dotenv, find_dotenv
 from src.services.DB.storage import Storage
 from src.services.ollama.ollama_client import OllamaClient
 from src.services.ollama.ollama_settings import url, model
-from tests.test2 import de_emojify
+from src.services.DB.database_config import charset, autocommit
 
+load_dotenv(find_dotenv())
 gemini = OllamaClient(url, model)
-storage = Storage()
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 
 while True:
     request = str(input('введите запрос: '))

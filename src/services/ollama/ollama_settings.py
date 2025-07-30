@@ -33,12 +33,6 @@ few_shot = [
     }
 ]
 
-# 3. Индивидуальные характеристики пользователя
-memory_prompt = {
-    "role": "system",
-    "name": "memory",
-    "content": "Пользователь дружелюбный собеседник"
-}
 
 temperarure = 0.75
 url = "http://localhost:11434/api/chat"

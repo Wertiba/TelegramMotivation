@@ -3,7 +3,7 @@ import json
 import os
 
 from dotenv import load_dotenv, find_dotenv
-from src.services.ollama.ollama_settings import system_prompt, memory_prompt, temperarure, few_shot
+from src.services.ollama.ollama_settings import system_prompt, temperarure, few_shot
 from src.services.DB.storage import Storage
 from src.logger import Logger
 from src.services.DB.database_config import charset, autocommit
@@ -29,7 +29,7 @@ class OllamaClient:
     def get_message(self, content, idusers):
         history = self.get_history(idusers)
         user_prompt = {"role": "user", "content": content}
-        message = [system_prompt, memory_prompt] + few_shot + history + [user_prompt] if history else [system_prompt, memory_prompt] + [user_prompt]
+        message = [system_prompt] + few_shot + history + [user_prompt]
         return message
 
     def process_prompt(self, idusers, content):
