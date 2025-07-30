@@ -95,7 +95,7 @@ def motivation_functional(tgid):
             bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)
             return
 
-    events = calender.get_events(creds)
+    events = calender.get_events(creds, tgid)
     prompt = str(events)
     idusers = storage.get_idusers(tgid)
     storage.save_request(idusers, 'user', prompt)

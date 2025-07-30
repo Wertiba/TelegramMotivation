@@ -1,23 +1,30 @@
-from datetime import datetime, timedelta
+import os
+
+from dotenv import find_dotenv, load_dotenv
+from datetime import timedelta
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from src.services.timezone import Timezone
+from src.services.google_integration.settings import SERVER_TIMEZONE
+from src.services.DB.storage import Storage
+from src.services.DB.database_config import charset, autocommit
 
 
 class CalenderClient:
     def __init__(self):
-        pass
+        load_dotenv(find_dotenv())
+        self.server_tz = Timezone(SERVER_TIMEZONE)
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 
-    def get_events(self, creds):
+    def get_events(self, creds, tgid):
         try:
             service = build("calendar", "v3", credentials=creds)
+            user_tz = self.storage.get_timezone(tgid)[0]
 
-            # Начало дня (00:00:00)
-            start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            # Конец дня (23:59:59)
+            start_of_day = self.server_tz.get_user_day_change(user_tz)
             end_of_day = start_of_day + timedelta(days=1) - timedelta(seconds=1)
-            # Преобразуем в ISO-формат с указанием временной зоны
-            start_iso = start_of_day.isoformat() + '+03:00'  # +03:00 — для Moscow. Или используй pytz
-            end_iso = end_of_day.isoformat() + '+03:00'
+            start_iso = start_of_day.isoformat()
+            end_iso = end_of_day.isoformat()
 
             events_result = service.events().list(
                 calendarId='primary',

@@ -36,7 +36,7 @@ async def callback(request: Request):
     timezone = timezone_result.get("value")
     storage.set_timezone(str(timezone), user_tgid)
 
-    bot.send_message(user_tgid, 'Авторизация прошла спешно!')
+    bot.send_message(user_tgid, 'Авторизация прошла успешно!')
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""
