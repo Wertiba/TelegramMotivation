@@ -51,7 +51,7 @@ class OllamaClient:
                     except json.JSONDecodeError:
                         self.logger.error(f"Error while processing ollama request: failed to parse line: {line}")
 
-            self.storage.save_request(idusers, 'assistant', de_emojify(result))
+            self.storage.save_request(idusers, 'assistant', result)
             return result
         else:
             self.logger.error(f"Error while processing ollama request: {response.status_code} status code: {response.text}")

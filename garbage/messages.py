@@ -1,1 +1,5 @@
-start_message = ''
+class Messages:
+    pass
+
+class Buttons:
+    pass

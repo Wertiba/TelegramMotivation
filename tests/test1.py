@@ -7,7 +7,7 @@ gemini = OllamaClient(url, model)
 storage = Storage()
 
 while True:
-    request = de_emojify(str(input('введите запрос: ')))
+    request = str(input('введите запрос: '))
     storage.save_request(1, 'user', request)
     answer = gemini.process_prompt(1, request)
     print(answer + '\n')

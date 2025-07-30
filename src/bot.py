@@ -14,7 +14,6 @@ from src.services.ollama.ollama_client import OllamaClient
 from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
 from src.services.google_integration.settings import SCOPES
-from tests.test2 import de_emojify
 
 auth = Authentication()
 bot = telebot.TeleBot(token)
@@ -41,10 +40,10 @@ def start_handler(message):
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
     creds = None
-    token = json.loads(storage.get_token(message.chat.id)[0])
+    token = storage.get_token(message.chat.id)
 
-    if token:
-        creds = Credentials.from_authorized_user_info(token, SCOPES)
+    if token and token[0]:
+        creds = Credentials.from_authorized_user_info(json.loads(token[0]), SCOPES)
 
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -59,8 +58,8 @@ def motivation_handler(message):
 
     events = calender.get_events(creds)
     idusers = storage.get_idusers(message.chat.id)
-    prompt = f'мне нужна мотивация, сегодня меня ждут такие события: {events}'
-    storage.save_request(idusers, 'user', de_emojify(prompt))
+    prompt = str(events)
+    storage.save_request(idusers, 'user', prompt)
     motivation = gemma.process_prompt(idusers, prompt)
     bot.send_message(message.chat.id, motivation)
 

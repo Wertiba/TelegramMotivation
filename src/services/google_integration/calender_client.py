@@ -13,6 +13,9 @@ class CalenderClient:
         try:
             service = build("calendar", "v3", credentials=creds)
 
+            timezone_result = service.settings().get(setting="timezone").execute()
+            timezone = timezone_result.get("value")
+
             # Начало дня (00:00:00)
             start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             # Конец дня (23:59:59)
@@ -21,9 +24,6 @@ class CalenderClient:
             start_iso = start_of_day.isoformat() + '+03:00'  # +03:00 — для Moscow. Или используй pytz
             end_iso = end_of_day.isoformat() + '+03:00'
 
-            print(f"Ищу события с {start_iso} по {end_iso}\n\n")
-
-            # Запрос к API
             events_result = service.events().list(
                 calendarId='primary',
                 timeMin=start_iso,
@@ -32,17 +32,17 @@ class CalenderClient:
                 orderBy='startTime'
             ).execute()
             events = events_result.get("items", [])
+            result = ''
 
             if not events:
-                print("No upcoming events found.")
-                return
+                return 'нет никаких событий'
 
-            # Prints the start and name of the next 10 events
             for event in events:
                 start = event["start"].get("dateTime", event["start"].get("date"))
                 print(start, event["summary"])
+                result += (start + ' ' + event['summary'])
 
-            return events
+            return result
 
         except HttpError as error:
             print(f"An error occurred: {error}")
