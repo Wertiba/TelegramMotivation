@@ -4,7 +4,6 @@ import time
 import requests
 import os
 
-from telebot import types
 from dotenv import load_dotenv, find_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -15,13 +14,14 @@ from src.services.ollama.ollama_client import OllamaClient
 from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
 from src.services.google_integration.settings import SCOPES
-from src.services.DB.database_config import charset, autocommit
+from src.services.DB.database_config import charset, port
+from src.keyboards import auth_markup, retry_login_markup, change_timezone
 
 load_dotenv(find_dotenv())
 
 auth = Authentication()
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
-storage = Storage()
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
 logger = Logger()
 calender = CalenderClient()
 gemma = OllamaClient(url, model)
@@ -37,13 +37,7 @@ def start_handler(message):
         bot.send_message(message.chat.id, 'И снова здравствуйте!')
 
     else:
-
-        markup = types.InlineKeyboardMarkup()
-        # btn_google_calendar = types.InlineKeyboardButton('Привязать google', callback_data=json.dumps({'level': 'calendar', 'value': 'google'}))
-        btn_google_calendar = types.InlineKeyboardButton("Привязать google", url=auth.get_auth_url(message.chat.id))
-        btn_yandex_calendar = types.InlineKeyboardButton('Привязать yandex', callback_data=json.dumps({'level': 'calendar', 'value': 'yandex'}))
-        markup.row(btn_google_calendar, btn_yandex_calendar)
-
+        markup = auth_markup(message.chat.id, auth)
         bot.send_message(message.chat.id, 'Приветствую! чтобы пользоваться ботом, надо привязать свой календарь', reply_markup=markup)
 
 
@@ -89,9 +83,7 @@ def motivation_functional(tgid):
             creds.refresh(Request())
             storage.save_creds(tgid, creds.to_json())
         else:
-            markup = types.InlineKeyboardMarkup()
-            btn = types.InlineKeyboardButton("повторить вход", url=auth.get_auth_url(tgid))
-            markup.row(btn)
+            markup = retry_login_markup(tgid, auth)
             bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)
             return
 

@@ -2,15 +2,17 @@ import os
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import find_dotenv, load_dotenv
 from src.services.DB.storage import Storage
-from src.services.DB.database_config import charset, autocommit
+from src.services.DB.database_config import charset, port
 from src.bot import motivation_functional
+from src.services.singleton import singleton
 
 
+@singleton
 class MessageScheduler:
     def __init__(self):
         load_dotenv(find_dotenv())
         self.scheduler = BackgroundScheduler()
-        self.storage = Storage()
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
 
     def start(self):
         """Запуск планировщика"""

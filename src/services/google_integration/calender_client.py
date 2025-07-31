@@ -7,14 +7,16 @@ from googleapiclient.errors import HttpError
 from src.services.timezone import Timezone
 from src.services.google_integration.settings import SERVER_TIMEZONE
 from src.services.DB.storage import Storage
-from src.services.DB.database_config import charset, autocommit
+from src.services.DB.database_config import charset, port
+from src.services.singleton import singleton
 
 
+@singleton
 class CalenderClient:
     def __init__(self):
         load_dotenv(find_dotenv())
         self.tz = Timezone(SERVER_TIMEZONE)
-        self.storage = Storage()
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
 
     def get_events(self, creds, tgid):
         try:

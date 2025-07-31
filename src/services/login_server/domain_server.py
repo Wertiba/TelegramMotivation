@@ -10,7 +10,7 @@ from src.bot import bot
 from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI, SERVER_TIMEZONE
 from src.services.google_integration.o2auth import Authentication
 from src.services.DB.storage import Storage
-from src.services.DB.database_config import charset, autocommit
+from src.services.DB.database_config import charset, port
 from src.services.scheduler import MessageScheduler
 from src.services.timezone import Timezone
 from src.bot_config import MORNING_TIME, EVENING_TIME
@@ -22,7 +22,7 @@ auth = Authentication()
 sheduler = MessageScheduler()
 sheduler.start()
 tz = Timezone(SERVER_TIMEZONE)
-storage = Storage()
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
 
 @app.get("/oauth2callback")
 async def callback(request: Request):

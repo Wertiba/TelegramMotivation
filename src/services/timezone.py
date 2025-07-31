@@ -1,7 +1,9 @@
 from datetime import datetime, time, timedelta
+from src.services.singleton import singleton
 import pytz
 
 
+@singleton
 class Timezone:
     def __init__(self, server_tz):
         self.server_tz = server_tz
