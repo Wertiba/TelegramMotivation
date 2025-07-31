@@ -15,7 +15,7 @@ from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
 from src.services.google_integration.settings import SCOPES
 from src.services.DB.database_config import charset, port
-from src.keyboards import auth_markup, retry_login_markup, change_timezone, settings_markup, select_language_markup
+from src.keyboards import auth_markup, retry_login_markup, change_timezone, settings_markup, select_language_markup, select_notification_time_markup
 
 load_dotenv(find_dotenv())
 
@@ -51,7 +51,8 @@ def motivation_handler(message):
 
 @bot.message_handler(commands=['settings'])
 def motivation_handler(message):
-    bot.send_message(message.chat.id, 'текущие настройки:')
+    markup = settings_markup()
+    bot.send_message(message.chat.id, 'текущие настройки:', reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda callback: True)
@@ -69,6 +70,13 @@ def callback_query(call):
 
         elif data['value'] == 'google':
             pass
+
+    elif level == 'settings':
+        if data['value'] == 'notify_time':
+            user_tz = storage.get_timezone(call.message.chat.id)
+            notifications = storage.get_all_notifications(call.message.chat.id)
+            markup = select_notification_time_markup(notifications, user_tz)
+            bot.send_message(call.message.chat.id, 'Выберите время, которое хотите изменить', reply_markup=markup)
 
 
 def motivation_functional(tgid):

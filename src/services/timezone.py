@@ -31,24 +31,24 @@ class Timezone:
 
         return server_midnight
 
-    def convert_user_time_to_server(self, user_tz_name: str, user_time_str: str) -> datetime:
+    def convert_user_time_to_server(self, input_tz_name, input_time_str, output_timezone=False):
         """
         Конвертирует введённое пользователем время в таймзону сервера,
         используя текущую дату пользователя.
         """
-        server_tz = pytz.timezone(self.server_tz)
-        user_tz = pytz.timezone(user_tz_name)
+        output_tz = pytz.timezone(self.server_tz) if not output_timezone else pytz.timezone(output_timezone)
+        input_tz = pytz.timezone(input_tz_name)
 
         # Получаем сегодняшнюю дату в таймзоне пользователя
-        today_user = datetime.now(user_tz).date()
+        today_user = datetime.now(input_tz).date()
 
-        hours, minutes = map(int, user_time_str.split(':'))
+        hours, minutes = map(int, input_time_str.split(':'))
 
         # Создаём datetime в зоне пользователя
-        user_datetime = user_tz.localize(datetime.combine(today_user, time(hours, minutes)))
+        result_datetime = input_tz.localize(datetime.combine(today_user, time(hours, minutes)))
 
         # Конвертируем в серверную зону
-        return user_datetime.astimezone(server_tz)
+        return result_datetime.astimezone(output_tz)
 
 
 # tz = Timezone("Europe/Moscow")

@@ -1,6 +1,9 @@
 import json
+import datetime
 
 from telebot import types
+from src.services.timezone import Timezone
+from src.services.google_integration.settings import SERVER_TIMEZONE
 
 def auth_markup(tgid, auth):
     markup = types.InlineKeyboardMarkup()
@@ -42,4 +45,20 @@ def select_language_markup():
     btn_ru = types.InlineKeyboardButton("Русский🇷🇺 ", callback_data=ru_data)
     btn_en = types.InlineKeyboardButton('English🇬🇧', callback_data=en_data)
     markup.row(btn_ru, btn_en)
+    return markup
+
+def select_notification_time_markup(notifications, user_tz):
+    markup = types.InlineKeyboardMarkup()
+    tz = Timezone(SERVER_TIMEZONE)
+
+    for i in notifications:
+        idnotifications, time = i
+        total_seconds = int(time.total_seconds())
+        hours = (total_seconds // 3600) % 24
+        minutes = (total_seconds % 3600) // 60
+        formated_time = f"{hours:02d}:{minutes:02d}"
+        user_time = tz.convert_user_time_to_server(SERVER_TIMEZONE, formated_time, user_tz[0])
+        data = json.dumps({'level': 'notify_time', 'value': str(idnotifications)})
+        btn = types.InlineKeyboardButton(user_time.time().strftime("%H:%M"), callback_data=data)
+        markup.row(btn)
     return markup

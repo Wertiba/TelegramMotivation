@@ -112,5 +112,8 @@ class Storage:
     def get_idusers(self, tgid):
         return self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", (tgid,))
 
+    def get_all_notifications(self, tgid):
+        return self.fetch_all("SELECT idnotifications, notify_time FROM notifications WHERE idusers = (SELECT idusers FROM users WHERE tgid = %s)", (tgid,))
+
     def delete_notification(self, idnotifications):
         self.execute("DELETE * FROM notifications WHERE idnotifications = %s", params=(idnotifications,))
