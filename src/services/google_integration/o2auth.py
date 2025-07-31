@@ -10,7 +10,7 @@ from src.services.DB.database_config import charset, autocommit
 class Authentication:
     def __init__(self):
         load_dotenv(find_dotenv())
-        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
+        self.storage = Storage()
 
 
     def get_auth_url(self, user_tgid):

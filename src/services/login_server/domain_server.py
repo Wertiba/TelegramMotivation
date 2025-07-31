@@ -13,6 +13,7 @@ from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, autocommit
 from src.services.scheduler import MessageScheduler
 from src.services.timezone import Timezone
+from src.bot_config import MORNING_TIME, EVENING_TIME
 
 load_dotenv(find_dotenv())
 
@@ -21,7 +22,7 @@ auth = Authentication()
 sheduler = MessageScheduler()
 sheduler.start()
 tz = Timezone(SERVER_TIMEZONE)
-storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
+storage = Storage()
 
 @app.get("/oauth2callback")
 async def callback(request: Request):
@@ -40,10 +41,12 @@ async def callback(request: Request):
     timezone_result = service.settings().get(setting="timezone").execute()
     timezone = timezone_result.get("value")
     storage.set_timezone(str(timezone), user_tgid)
-    notify_time = tz.convert_user_time_to_server(timezone, '13:30')
-    sheduler.add_notification(user_tgid, notify_time.time(), '1')
+    morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()
+    evening_time = tz.convert_user_time_to_server(timezone, EVENING_TIME).time()
+    sheduler.add_notification(user_tgid, morning_time, '1')
+    sheduler.add_notification(user_tgid, evening_time, '2')
 
-    bot.send_message(user_tgid, 'Авторизация прошла успешно!')
+    bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings')
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""

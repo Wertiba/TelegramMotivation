@@ -1,67 +1,64 @@
-import pymysql
 import datetime
-
-from contextlib import contextmanager
+import pymysql
 from loguru import logger
-
-
+from contextlib import contextmanager
+from src.services.DB.pool import get_pool
 
 class Storage:
-    def __init__(self, host, user, password, db_name, autocommit, charset):
-        self.db_config = {
-            'host': host,
-            'user': user,
-            'password': password,
-            'database': db_name,
-            'autocommit': autocommit,
-            'charset': charset
-        }
+    def __init__(self, host, user, password, name, **conn_params):
+        self.pool = get_pool(host, user, password, name, **conn_params)
 
     @contextmanager
     def connection(self):
-        conn = None
+        """Обычное соединение (автоматически закрывается)"""
+        conn = self.pool.connection()
         try:
-            conn = pymysql.connect(**self.db_config)
             yield conn
         except pymysql.MySQLError as e:
-            logger.error("MySQL error while connection: %s", e)
+            logger.error("MySQL connection error: %s", e)
             raise
         finally:
-            if conn:
-                conn.close()
+            conn.close()
 
-    def _fetch_one(self, query, fields):
+    @contextmanager
+    def transaction(self):
+        """Транзакция с commit/rollback"""
+        conn = self.pool.connection()
         try:
-            with self.connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query, fields)
-                    return cur.fetchone()
+            yield conn
+            conn.commit()
         except Exception as e:
-            print(e)
+            conn.rollback()
+            logger.error("Transaction rolled back: %s", e)
+            raise
+        finally:
+            conn.close()
 
-    def _fetch_many(self, query, fields):
-        try:
-            with self.connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query, fields)
-                    return cur.fetchall()
-        except Exception as e:
-            print(e)
+    def execute(self, query, params=None):
+        """Выполнение запроса без возврата результата"""
+        with self.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query, params)
 
-    def _execute(self, query, fields):
-        try:
-            with self.connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(query, fields)
-        except Exception as e:
-            print(e)
+    def fetch_one(self, query, params=None):
+        """Получить одну запись"""
+        with self.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query, params)
+                return cur.fetchone()
 
+    def fetch_all(self, query, params=None):
+        """Получить несколько записей"""
+        with self.connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(query, params)
+                return cur.fetchall()
 
     def set_timezone(self, timezone, tgid):
-        self._execute("UPDATE users SET timezone = %s WHERE tgid = %s", (timezone, tgid))
+        self.execute("UPDATE users SET timezone = %s WHERE tgid = %s", params=(timezone, tgid))
 
     def get_timezone(self, tgid):
-        return self._fetch_one("SELECT timezone FROM users WHERE tgid = %s", (tgid,))
+        return self.fetch_one("SELECT timezone FROM users WHERE tgid = %s", params=(tgid,))
 
 
     def add_new_user(self, tgid, name):

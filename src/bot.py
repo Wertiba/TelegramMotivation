@@ -21,7 +21,7 @@ load_dotenv(find_dotenv())
 
 auth = Authentication()
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
-storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
+storage = Storage()
 logger = Logger()
 calender = CalenderClient()
 gemma = OllamaClient(url, model)
@@ -122,4 +122,3 @@ def run_bot():
             logger.exception(f"Unexpected error: {e}. Restarting in {delay} sec...")
             time.sleep(delay)
             delay = min(delay * 2, max_delay)  # увеличиваем задержку
-
