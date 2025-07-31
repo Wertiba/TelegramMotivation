@@ -104,10 +104,22 @@ def motivation_functional(tgid):
 
 
 def run_bot():
+    delay = 5  # начальная задержка
+    max_delay = 300  # максимум 5 минут
+
     while True:
         try:
-            logger.info("bot is running")
-            bot.polling(none_stop=True)
-        except requests.exceptions.ConnectionError:
-            logger.error("bot isn't running: Connection error")
-            time.sleep(5)
+            logger.info("Bot is running")
+            bot.polling(none_stop=True, interval=0, timeout=20)
+
+            # сбрасываем задержку
+            delay = 5
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"Connection error: {e}. Restarting in {delay} sec...")
+            time.sleep(delay)
+            delay = min(delay * 2, max_delay)  # увеличиваем задержку
+        except Exception as e:
+            logger.exception(f"Unexpected error: {e}. Restarting in {delay} sec...")
+            time.sleep(delay)
+            delay = min(delay * 2, max_delay)  # увеличиваем задержку
+

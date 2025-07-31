@@ -13,7 +13,7 @@ from src.services.DB.database_config import charset, autocommit
 class CalenderClient:
     def __init__(self):
         load_dotenv(find_dotenv())
-        self.server_tz = Timezone(SERVER_TIMEZONE)
+        self.tz = Timezone(SERVER_TIMEZONE)
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 
     def get_events(self, creds, tgid):
@@ -21,7 +21,7 @@ class CalenderClient:
             service = build("calendar", "v3", credentials=creds)
             user_tz = self.storage.get_timezone(tgid)[0]
 
-            start_of_day = self.server_tz.get_user_day_change(user_tz)
+            start_of_day = self.tz.get_user_day_change(user_tz)
             end_of_day = start_of_day + timedelta(days=1) - timedelta(seconds=1)
             start_iso = start_of_day.isoformat()
             end_iso = end_of_day.isoformat()

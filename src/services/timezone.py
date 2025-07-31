@@ -29,25 +29,23 @@ class Timezone:
 
         return server_midnight
 
-
-    def convert_user_time_to_server(self, user_tz_name: str, user_date: datetime.date,
-                                    user_time_str: str) -> datetime:
+    def convert_user_time_to_server(self, user_tz_name: str, user_time_str: str) -> datetime:
         """
-        Конвертирует введённое пользователем время (строкой) в таймзону сервера.
-
-        :param user_tz_name: Название таймзоны пользователя (например, "Europe/Moscow")
-        :param user_date: Дата (datetime.date) в зоне пользователя
-        :param user_time_str: Время (например, "14:30")
-        :return: datetime в таймзоне сервера
+        Конвертирует введённое пользователем время в таймзону сервера,
+        используя текущую дату пользователя.
         """
         server_tz = pytz.timezone(self.server_tz)
         user_tz = pytz.timezone(user_tz_name)
 
+        # Получаем сегодняшнюю дату в таймзоне пользователя
+        today_user = datetime.now(user_tz).date()
+
         hours, minutes = map(int, user_time_str.split(':'))
 
-        # создаём datetime в зоне пользователя
-        user_datetime = user_tz.localize(datetime.combine(user_date, time(hours, minutes)))
-        # конвертируем в серверную зону
+        # Создаём datetime в зоне пользователя
+        user_datetime = user_tz.localize(datetime.combine(today_user, time(hours, minutes)))
+
+        # Конвертируем в серверную зону
         return user_datetime.astimezone(server_tz)
 
 
@@ -56,6 +54,5 @@ class Timezone:
 # server_day_change = tz.get_user_day_change("UTC")
 # print("Смена дня пользователя в серверной зоне:", server_day_change)
 #
-# user_date = datetime.now().date()
-# server_time = tz.convert_user_time_to_server("UTC", user_date, "14:30")
+# server_time = tz.convert_user_time_to_server("UTC", "14:30")
 # print("Введённое время пользователя в серверной зоне:", server_time)

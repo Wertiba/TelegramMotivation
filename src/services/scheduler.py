@@ -9,9 +9,9 @@ from src.bot import motivation_functional
 
 
 class MessageScheduler:
-    def __init__(self, bot: TeleBot):
+    def __init__(self):
         load_dotenv(find_dotenv())
-        self.bot = bot
+        # self.bot = bot
         self.scheduler = BackgroundScheduler()
         self.storage = Storage(
             os.getenv('DB_HOST'),
@@ -26,28 +26,22 @@ class MessageScheduler:
         """Запуск планировщика"""
         self.scheduler.start()
 
-    def send_message(self, user_id, text):
-        """Отправка сообщения пользователю"""
-        self.bot.send_message(user_id, text)
-
-    def add_notification(self, user, time, suffix):
+    def add_notification(self, tgid, event_time, suffix):
         """Добавление задач для конкретного пользователя"""
-        event_time = datetime.strptime(str(time), "%H:%M:%S")
 
-        # Утреннее сообщение
         self.scheduler.add_job(
-            self.send_message,
+            motivation_functional,
             "cron",
             hour=event_time.hour,
             minute=event_time.minute,
-            args=[user["user_id"], user["message"]],
-            id=f"user_{user['id']}_{suffix}",
+            args=[tgid],
+            id=f"user_{tgid}_{suffix}",
             replace_existing=True
         )
 
-    def remove_notification(self, user_id, suffix):
+    def remove_notification(self, tgid, suffix):
         """Удаление задач пользователя по его ID"""
-        job_id = f"user_{user_id}_{suffix}"
+        job_id = f"user_{tgid}_{suffix}"
         job = self.scheduler.get_job(job_id)
         if job:
             self.scheduler.remove_job(job_id)

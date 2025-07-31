@@ -7,15 +7,20 @@ from googleapiclient.discovery import build
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from src.bot import bot
-from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI
+from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI, SERVER_TIMEZONE
 from src.services.google_integration.o2auth import Authentication
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, autocommit
+from src.services.scheduler import MessageScheduler
+from src.services.timezone import Timezone
 
 load_dotenv(find_dotenv())
 
 app = FastAPI()
 auth = Authentication()
+sheduler = MessageScheduler()
+sheduler.start()
+tz = Timezone(SERVER_TIMEZONE)
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), autocommit, charset)
 
 @app.get("/oauth2callback")
@@ -35,6 +40,8 @@ async def callback(request: Request):
     timezone_result = service.settings().get(setting="timezone").execute()
     timezone = timezone_result.get("value")
     storage.set_timezone(str(timezone), user_tgid)
+    notify_time = tz.convert_user_time_to_server(timezone, '13:30')
+    sheduler.add_notification(user_tgid, notify_time.time(), '1')
 
     bot.send_message(user_tgid, 'Авторизация прошла успешно!')
 
