@@ -13,7 +13,7 @@ class MessageScheduler:
     def __init__(self):
         load_dotenv(find_dotenv())
         self.scheduler = BackgroundScheduler()
-        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
     def start(self):
         """Запуск планировщика"""

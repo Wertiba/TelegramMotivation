@@ -7,7 +7,7 @@ from src.services.DB.database_config import charset, port
 
 load_dotenv(find_dotenv())
 gemini = OllamaClient(url, model)
-storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
 while True:
     request = str(input('введите запрос: '))

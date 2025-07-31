@@ -8,7 +8,7 @@ from dbutils.pooled_db import PooledDB
 
 @singleton
 class Storage:
-    def __init__(self, host, user, password, database, port, charset, creator=pymysql, mincached=1, maxcached=5, maxconnections=10, blocking=True, ping=1):
+    def __init__(self, host, user, password, database, charset, port=3306, creator=pymysql, mincached=1, maxcached=5, maxconnections=10, blocking=True, ping=1):
         db_config = {
             "creator": creator,
             "host": host,

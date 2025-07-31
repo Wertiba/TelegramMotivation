@@ -20,9 +20,8 @@ load_dotenv(find_dotenv())
 app = FastAPI()
 auth = Authentication()
 sheduler = MessageScheduler()
-sheduler.start()
 tz = Timezone(SERVER_TIMEZONE)
-storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), port, charset)
+storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
 @app.get("/oauth2callback")
 async def callback(request: Request):
