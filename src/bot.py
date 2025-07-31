@@ -15,7 +15,7 @@ from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
 from src.services.google_integration.settings import SCOPES
 from src.services.DB.database_config import charset, port
-from src.keyboards import auth_markup, retry_login_markup, change_timezone
+from src.keyboards import auth_markup, retry_login_markup, change_timezone, settings_markup, select_language_markup
 
 load_dotenv(find_dotenv())
 

@@ -43,8 +43,8 @@ async def callback(request: Request):
     storage.set_timezone(str(timezone), user_tgid)
     morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()
     evening_time = tz.convert_user_time_to_server(timezone, EVENING_TIME).time()
-    sheduler.add_notification(user_tgid, morning_time, '1')
-    sheduler.add_notification(user_tgid, evening_time, '2')
+    sheduler.add_notification(user_tgid, morning_time)
+    sheduler.add_notification(user_tgid, evening_time)
 
     bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings')
 

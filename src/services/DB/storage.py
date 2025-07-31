@@ -57,6 +57,7 @@ class Storage:
         with self.transaction() as conn:
             with conn.cursor() as cur:
                 cur.execute(query, params)
+                return cur.lastrowid
 
     def fetch_one(self, query, params=None):
         """Получить одну запись"""
@@ -87,6 +88,9 @@ class Storage:
                     INSERT INTO requests_history (idusers, role, content, created_at) VALUES (%s, %s, %s, %s);
                 """, (idusers, role, content, created_at))
 
+    def save_notification(self, tgid, time):
+        return self.execute("INSERT INTO notifications (idusers, notify_time) VALUES ((SELECT idusers FROM users WHERE tgid = %s), %s);", params=(tgid, time))
+
     def is_user_already_registered(self, tgid):
         return bool(self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", (tgid,)))
 
@@ -107,3 +111,6 @@ class Storage:
 
     def get_idusers(self, tgid):
         return self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", (tgid,))
+
+    def delete_notification(self, idnotifications):
+        self.execute("DELETE * FROM notifications WHERE idnotifications = %s", params=(idnotifications,))

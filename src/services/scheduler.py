@@ -1,4 +1,5 @@
 import os
+from loguru import logger
 from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import find_dotenv, load_dotenv
 from src.services.DB.storage import Storage
@@ -18,30 +19,32 @@ class MessageScheduler:
         """Запуск планировщика"""
         self.scheduler.start()
 
-    def add_notification(self, tgid, event_time, suffix):
+    def add_notification(self, tgid, event_time):
         """Добавление задач для конкретного пользователя"""
 
+        idnotifications = str(self.storage.save_notification(tgid, event_time))
         self.scheduler.add_job(
             motivation_functional,
             "cron",
             hour=event_time.hour,
             minute=event_time.minute,
             args=[tgid],
-            id=f"{tgid}_{suffix}",
+            id=idnotifications,
             replace_existing=True
         )
 
-    def remove_notification(self, tgid, suffix):
+    def remove_notification(self, idnotifications):
         """Удаление задач пользователя по его ID"""
-        job_id = f"{tgid}_{suffix}"
-        job = self.scheduler.get_job(job_id)
+        job = self.scheduler.get_job(idnotifications)
         if job:
-            self.scheduler.remove_job(job_id)
+            self.scheduler.remove_job(idnotifications)
+        else:
+            logger.debug('Задача не найдена')
 
-    def change_notification(self, tgid, suffix, new_time):
+    def change_notification(self, tgid, idnotifications, new_time):
         """Обновление расписания для пользователя"""
-        self.remove_notification(tgid, suffix)
-        self.add_notification(tgid, new_time, suffix)
+        self.remove_notification(idnotifications)
+        self.add_notification(tgid, new_time)
 
     def load_all_users(self):
         """Загрузка задач для всех пользователей при старте"""
