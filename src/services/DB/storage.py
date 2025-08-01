@@ -120,3 +120,6 @@ class Storage:
 
     def delete_notification_by_time(self, tgid, time):
         self.execute("DELETE FROM notifications WHERE tgid = %s AND botify_time = %s", params=(tgid, time))
+
+    def set_language(self, language, tgid):
+        self.execute("UPDATE users SET language = %s WHERE tgid = %s", params=(language, tgid))

@@ -61,7 +61,7 @@ def motivation_handler(message):
     bot.send_message(message.chat.id, 'текущие настройки:', reply_markup=markup)
 
 
-@bot.message_handler()
+@bot.message_handler(func=lambda m: True)
 def any_message(message):
     bot.send_message(message.chat.id, 'Просто сообщение')
 
@@ -84,7 +84,7 @@ def get_user_time(message, old_time, message_id):
     bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda callback: True)
+@bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     data = json.loads(call.data)
     tgid = call.message.chat.id
@@ -109,6 +109,13 @@ def callback_query(call):
             markup = select_notification_time_markup(notifications, user_tz)
             bot.edit_message_text('Выберите время, которое хотите изменить', tgid, call.message.message_id, reply_markup=markup)
 
+        elif data['value'] == 'language':
+            markup = select_language_markup()
+            bot.edit_message_text('Выберите ваш язык | Choose your language', tgid, call.message.message_id, reply_markup=markup)
+
+        elif data['value'] == 'my_info':
+            pass
+
     elif level == 'notify_time':
         markup = delete_notification_markup(data['value'])
         bot.edit_message_text('Пожалуйста, введите новое время для уведомления', tgid, call.message.message_id, reply_markup=markup)
@@ -117,9 +124,13 @@ def callback_query(call):
     elif level == 'del_time':
         storage.delete_notification_by_id(data['value'])
         scheduler.remove_notification(data['value'])
-        bot.delete_message(tgid, call.message.message_id)
         markup = settings_markup()
-        bot.send_message(tgid, 'Уведомление отключено', reply_markup=markup)
+        bot.edit_message_text('Уведомление отключено', tgid, call.message.message_id, reply_markup=markup)
+
+    elif level == 'language':
+        markup = settings_markup()
+        storage.set_language(data['value'], tgid)
+        bot.edit_message_text('Язык успешно изменён', tgid, call.message.message_id, reply_markup=markup)
 
 def motivation_functional(tgid):
     creds = None
