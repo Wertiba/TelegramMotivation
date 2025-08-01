@@ -4,7 +4,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from dotenv import find_dotenv, load_dotenv
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
-from src.bot import motivation_functional
 from src.services.singleton import singleton
 
 
@@ -21,17 +20,20 @@ class MessageScheduler:
 
     def add_notification(self, tgid, event_time):
         """Добавление задач для конкретного пользователя"""
-
-        idnotifications = str(self.storage.save_notification(tgid, event_time))
-        self.scheduler.add_job(
-            motivation_functional,
-            "cron",
-            hour=event_time.hour,
-            minute=event_time.minute,
-            args=[tgid],
-            id=idnotifications,
-            replace_existing=True
-        )
+        if len(self.storage.get_all_notifications(tgid)) < 3:
+            idnotifications = str(self.storage.save_notification(tgid, event_time))
+            self.scheduler.add_job(
+                motivation_functional,
+                "cron",
+                hour=event_time.hour,
+                minute=event_time.minute,
+                args=[tgid],
+                id=idnotifications,
+                replace_existing=True
+            )
+            return True
+        else:
+            return False
 
     def remove_notification(self, idnotifications):
         """Удаление задач пользователя по его ID"""

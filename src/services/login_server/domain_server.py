@@ -40,12 +40,17 @@ async def callback(request: Request):
     timezone_result = service.settings().get(setting="timezone").execute()
     timezone = timezone_result.get("value")
     storage.set_timezone(str(timezone), user_tgid)
-    morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()
-    evening_time = tz.convert_user_time_to_server(timezone, EVENING_TIME).time()
-    sheduler.add_notification(user_tgid, morning_time)
-    sheduler.add_notification(user_tgid, evening_time)
 
-    bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings')
+    if len(storage.get_all_notifications(user_tgid)) == 0:
+        morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()
+        evening_time = tz.convert_user_time_to_server(timezone, EVENING_TIME).time()
+        sheduler.add_notification(user_tgid, morning_time)
+        sheduler.add_notification(user_tgid, evening_time)
+
+        bot.send_message(user_tgid,
+                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings')
+    else:
+        bot.send_message(user_tgid,f'Авторизация прошла успешно!')
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""

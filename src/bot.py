@@ -8,14 +8,16 @@ from dotenv import load_dotenv, find_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from src.logger import Logger
+from src.services.timezone import Timezone
 from src.services.google_integration.o2auth import Authentication
 from src.services.google_integration.calender_client import CalenderClient
 from src.services.ollama.ollama_client import OllamaClient
 from src.services.ollama.ollama_settings import model, url
 from src.services.DB.storage import Storage
-from src.services.google_integration.settings import SCOPES
+from src.services.google_integration.settings import SCOPES, SERVER_TIMEZONE
 from src.services.DB.database_config import charset, port
-from src.keyboards import auth_markup, retry_login_markup, change_timezone, settings_markup, select_language_markup, select_notification_time_markup
+from src.services.scheduler import MessageScheduler
+from src.keyboards import auth_markup, retry_login_markup, change_timezone, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
 
 load_dotenv(find_dotenv())
 
@@ -25,6 +27,7 @@ storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASS
 logger = Logger()
 calender = CalenderClient()
 gemma = OllamaClient(url, model)
+tz = Timezone(SERVER_TIMEZONE)
 
 
 @bot.message_handler(commands=['start'])
@@ -43,11 +46,14 @@ def start_handler(message):
 
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
-    motivation_functional(message.chat.id)
+    text, markup = motivation_functional(message.chat.id)
+    bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='Markdown')
+
 
 @bot.message_handler(commands=['about'])
 def motivation_handler(message):
     bot.send_message(message.chat.id, 'это мы')
+
 
 @bot.message_handler(commands=['settings'])
 def motivation_handler(message):
@@ -55,9 +61,29 @@ def motivation_handler(message):
     bot.send_message(message.chat.id, 'текущие настройки:', reply_markup=markup)
 
 
+@bot.message_handler()
+def any_message(message):
+    bot.send_message(message.chat.id, 'Просто сообщение')
+
+
+@bot.message_handler()
+def get_user_time(message, old_time):
+    new_time = tz.parse_time(message.text)
+    if not new_time:
+        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS')
+        return
+    if old_time:
+        idnotifications = storage.delete_notification_by_time(message.chat.id, old_time)
+        # scheduler.change_notification(message.chat.id, idnotifications, new_time)
+    else:
+        # scheduler.add_notification(message.chat.id, new_time)
+        pass
+
+
 @bot.callback_query_handler(func=lambda callback: True)
 def callback_query(call):
     data = json.loads(call.data)
+    tgid = call.message.chat.id
     level = data['level']
 
     if level == 'calendar':
@@ -73,10 +99,19 @@ def callback_query(call):
 
     elif level == 'settings':
         if data['value'] == 'notify_time':
-            user_tz = storage.get_timezone(call.message.chat.id)
-            notifications = storage.get_all_notifications(call.message.chat.id)
+            user_tz = storage.get_timezone(tgid)
+            notifications = storage.get_all_notifications(tgid)
             markup = select_notification_time_markup(notifications, user_tz)
-            bot.send_message(call.message.chat.id, 'Выберите время, которое хотите изменить', reply_markup=markup)
+            bot.edit_message_text('Выберите время, которое хотите изменить', tgid, call.message.message_id, reply_markup=markup)
+
+    elif level == 'notify_time':
+        markup = delete_notification_markup(data['value'])
+        bot.edit_message_text('Пожалуйста, введите новое время для уведомления', tgid, call.message.message_id, reply_markup=markup)
+        bot.register_next_step_handler(call.message, get_user_time, data['value'])
+
+    elif level == 'del_time':
+        idnotifications = storage.delete_notification_by_time(tgid, data['value'])
+        # scheduler.remove_notification(idnotifications)
 
 
 def motivation_functional(tgid):
