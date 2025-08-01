@@ -44,8 +44,8 @@ def select_language_markup():
     markup = types.InlineKeyboardMarkup()
     ru_data = json.dumps({'level': 'language', 'value': 'ru'})
     en_data = json.dumps({'level': 'language', 'value': 'en'})
-    btn_ru = types.InlineKeyboardButton("Русский🇷🇺 ", callback_data=ru_data)
-    btn_en = types.InlineKeyboardButton('English🇬🇧', callback_data=en_data)
+    btn_ru = types.InlineKeyboardButton("Русский ", callback_data=ru_data)
+    btn_en = types.InlineKeyboardButton('English', callback_data=en_data)
     markup.row(btn_ru, btn_en)
     return markup
 

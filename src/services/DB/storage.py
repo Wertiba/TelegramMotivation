@@ -73,12 +73,6 @@ class Storage:
                 cur.execute(query, params)
                 return cur.fetchall()
 
-    def set_timezone(self, timezone, tgid):
-        self.execute("UPDATE users SET timezone = %s WHERE tgid = %s", params=(timezone, tgid))
-
-    def get_timezone(self, tgid):
-        return self.fetch_one("SELECT timezone FROM users WHERE tgid = %s", params=(tgid,))
-
 
     def add_new_user(self, tgid, name):
         self.execute("INSERT INTO users (tgid, name) VALUES (%s, %s);", params=(tgid, name))
@@ -88,23 +82,38 @@ class Storage:
                     INSERT INTO requests_history (idusers, role, content, created_at) VALUES (%s, %s, %s, %s);
                 """, params=(idusers, role, content, created_at))
 
-    def save_notification(self, tgid, time):
+    def add_notification(self, tgid, time):
         return self.execute("INSERT INTO notifications (idusers, notify_time) VALUES ((SELECT idusers FROM users WHERE tgid = %s), %s);", params=(tgid, time))
 
-    def is_user_already_registered(self, tgid):
-        return bool(self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", params=(tgid,)))
+    def set_state(self, tgid, state):
+        self.execute("UPDATE users SET state = %s WHERE tgid = %s", params=(state, tgid))
+
+    def set_creds(self, tgid, creds):
+        self.execute("UPDATE users SET token = %s WHERE tgid = %s", params=(creds, tgid))
+
+    def set_timezone(self, timezone, tgid):
+        self.execute("UPDATE users SET timezone = %s WHERE tgid = %s", params=(timezone, tgid))
+
+    def set_language(self, language, tgid):
+        self.execute("UPDATE users SET language = %s WHERE tgid = %s", params=(language, tgid))
+
+    def set_memory_prompt(self, prompt, tgid):
+        self.execute("UPDATE users SET memory_prompt = %s WHERE tgid = %s", params=(prompt, tgid))
+
+    def get_timezone(self, tgid):
+        return self.fetch_one("SELECT timezone FROM users WHERE tgid = %s", params=(tgid,))
+
+    def delete_notification_by_id(self, idnotifications):
+        self.execute("DELETE FROM notifications WHERE idnotifications = %s", params=(idnotifications,))
+
+    def delete_notification_by_time(self, tgid, time):
+        self.execute("DELETE FROM notifications WHERE tgid = %s AND botify_time = %s", params=(tgid, time))
 
     def get_user_history(self, idusers, limit=30):
         return self.fetch_all("SELECT role, content FROM requests_history WHERE idusers = %s ORDER BY created_at ASC LIMIT %s", params=(idusers, limit))
 
     def get_tgid_by_state(self, state):
         return self.fetch_one("SELECT tgid FROM users WHERE state = %s", params=(state,))
-
-    def set_state(self, tgid, state):
-        self.execute("UPDATE users SET state = %s WHERE tgid = %s", params=(state, tgid))
-
-    def save_creds(self, tgid, creds):
-        self.execute("UPDATE users SET token = %s WHERE tgid = %s", params=(creds, tgid))
 
     def get_token(self, tgid):
         return self.fetch_one("SELECT token FROM users WHERE tgid = %s", params=(tgid,))
@@ -115,11 +124,8 @@ class Storage:
     def get_all_notifications(self, tgid):
         return self.fetch_all("SELECT idnotifications, notify_time FROM notifications WHERE idusers = (SELECT idusers FROM users WHERE tgid = %s)", params=(tgid,))
 
-    def delete_notification_by_id(self, idnotifications):
-        self.execute("DELETE FROM notifications WHERE idnotifications = %s", params=(idnotifications,))
+    def get_memory_prompt(self, idusers):
+        return self.fetch_one("SELECT memory_prompt FROM users WHERE idusers = %s", params=(idusers,))
 
-    def delete_notification_by_time(self, tgid, time):
-        self.execute("DELETE FROM notifications WHERE tgid = %s AND botify_time = %s", params=(tgid, time))
-
-    def set_language(self, language, tgid):
-        self.execute("UPDATE users SET language = %s WHERE tgid = %s", params=(language, tgid))
+    def is_user_already_registered(self, tgid):
+        return bool(self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", params=(tgid,)))

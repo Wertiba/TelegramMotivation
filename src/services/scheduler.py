@@ -21,7 +21,7 @@ class MessageScheduler:
     def add_notification(self, tgid, event_time):
         """Добавление задач для конкретного пользователя"""
         if len(self.storage.get_all_notifications(tgid)) < 3:
-            idnotifications = str(self.storage.save_notification(tgid, event_time))
+            idnotifications = str(self.storage.add_notification(tgid, event_time))
             self.scheduler.add_job(
                 motivation_functional_wrapper,
                 "cron",

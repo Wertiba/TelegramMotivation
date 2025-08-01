@@ -84,6 +84,14 @@ def get_user_time(message, old_time, message_id):
     bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)
 
 
+@bot.message_handler()
+def get_memory_prompt_from_user(message, message_id):
+    markup = settings_markup()
+    prompt = message.text
+    storage.set_memory_prompt(prompt, message.chat.id)
+    bot.delete_message(message.chat.id, message_id)
+    bot.send_message(message.chat.id, 'Промт добавлен!!', reply_markup=markup)
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     data = json.loads(call.data)
@@ -114,7 +122,8 @@ def callback_query(call):
             bot.edit_message_text('Выберите ваш язык | Choose your language', tgid, call.message.message_id, reply_markup=markup)
 
         elif data['value'] == 'my_info':
-            pass
+            bot.edit_message_text('Хорошо, пришлите текст, в котором вы расскажете нейросети о себе, чтобы получать более персонализированные ответы', tgid, call.message.message_id, reply_markup=None)
+            bot.register_next_step_handler(call.message, get_memory_prompt_from_user, call.message.message_id)
 
     elif level == 'notify_time':
         markup = delete_notification_markup(data['value'])
@@ -142,7 +151,7 @@ def motivation_functional(tgid):
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-            storage.save_creds(tgid, creds.to_json())
+            storage.set_creds(tgid, creds.to_json())
         else:
             markup = retry_login_markup(tgid, auth)
             bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)

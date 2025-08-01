@@ -35,7 +35,7 @@ async def callback(request: Request):
     flow.fetch_token(authorization_response=str(request.url))
     creds = flow.credentials
     user_tgid = auth.retrieve_user_by_state(state)
-    storage.save_creds(user_tgid, creds.to_json())
+    storage.set_creds(user_tgid, creds.to_json())
     service = build("calendar", "v3", credentials=creds)
     timezone_result = service.settings().get(setting="timezone").execute()
     timezone = timezone_result.get("value")
