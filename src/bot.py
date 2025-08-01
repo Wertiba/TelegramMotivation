@@ -21,6 +21,7 @@ from src.keyboards import auth_markup, retry_login_markup, change_timezone, sett
 
 load_dotenv(find_dotenv())
 
+scheduler = MessageScheduler()
 auth = Authentication()
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
@@ -46,8 +47,7 @@ def start_handler(message):
 
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
-    text, markup = motivation_functional(message.chat.id)
-    bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode='Markdown')
+    motivation_functional(message.chat.id)
 
 
 @bot.message_handler(commands=['about'])
@@ -67,17 +67,21 @@ def any_message(message):
 
 
 @bot.message_handler()
-def get_user_time(message, old_time):
-    new_time = tz.parse_time(message.text)
+def get_user_time(message, old_time, message_id):
+    user_tz = storage.get_timezone(message.chat.id)[0]
+    markup = settings_markup()
+    new_time = tz.convert_user_time_to_server(user_tz, tz.parse_time(message.text)).time()
+    bot.delete_message(message.chat.id, message_id)
+
     if not new_time:
-        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS')
+        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
         return
     if old_time:
         idnotifications = storage.delete_notification_by_time(message.chat.id, old_time)
-        # scheduler.change_notification(message.chat.id, idnotifications, new_time)
+        scheduler.change_notification(message.chat.id, idnotifications, new_time)
     else:
-        # scheduler.add_notification(message.chat.id, new_time)
-        pass
+        scheduler.add_notification(message.chat.id, new_time)
+    bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)
 
 
 @bot.callback_query_handler(func=lambda callback: True)
@@ -85,6 +89,7 @@ def callback_query(call):
     data = json.loads(call.data)
     tgid = call.message.chat.id
     level = data['level']
+    bot.clear_step_handler_by_chat_id(tgid)
 
     if level == 'calendar':
         if data['value'] == 'yandex':
@@ -107,12 +112,14 @@ def callback_query(call):
     elif level == 'notify_time':
         markup = delete_notification_markup(data['value'])
         bot.edit_message_text('Пожалуйста, введите новое время для уведомления', tgid, call.message.message_id, reply_markup=markup)
-        bot.register_next_step_handler(call.message, get_user_time, data['value'])
+        bot.register_next_step_handler(call.message, get_user_time, data['value'], call.message.message_id)
 
     elif level == 'del_time':
-        idnotifications = storage.delete_notification_by_time(tgid, data['value'])
-        # scheduler.remove_notification(idnotifications)
-
+        storage.delete_notification_by_id(data['value'])
+        scheduler.remove_notification(data['value'])
+        bot.delete_message(tgid, call.message.message_id)
+        markup = settings_markup()
+        bot.send_message(tgid, 'Уведомление отключено', reply_markup=markup)
 
 def motivation_functional(tgid):
     creds = None

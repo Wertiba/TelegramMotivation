@@ -5,13 +5,13 @@ from dotenv import find_dotenv, load_dotenv
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
 from src.services.singleton import singleton
-
+from src.scheduler_utils import create_scheduler, motivation_functional_wrapper
 
 @singleton
 class MessageScheduler:
     def __init__(self):
         load_dotenv(find_dotenv())
-        self.scheduler = BackgroundScheduler()
+        self.scheduler = create_scheduler()
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
     def start(self):
@@ -23,7 +23,7 @@ class MessageScheduler:
         if len(self.storage.get_all_notifications(tgid)) < 3:
             idnotifications = str(self.storage.save_notification(tgid, event_time))
             self.scheduler.add_job(
-                motivation_functional,
+                motivation_functional_wrapper,
                 "cron",
                 hour=event_time.hour,
                 minute=event_time.minute,
@@ -48,8 +48,8 @@ class MessageScheduler:
         self.remove_notification(idnotifications)
         self.add_notification(tgid, new_time)
 
-    def load_all_users(self):
-        """Загрузка задач для всех пользователей при старте"""
-        # users = self.storage.get_all_users()  # метод должен вернуть список пользователей
-        # for user in users:
-        #     self.add_user_jobs(user)
+    def get_jobs(self):
+        """
+        Возвращает список всех запланированных заданий.
+        """
+        return self.scheduler.get_jobs()

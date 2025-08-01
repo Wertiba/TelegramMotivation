@@ -1,5 +1,6 @@
 from datetime import datetime, time, timedelta
 from src.services.singleton import singleton
+from src.bot_config import TIME_FROMAT
 import pytz
 import re
 
@@ -79,7 +80,7 @@ class Timezone:
                 if period == "am" and hours == 12:
                     hours = 0
 
-                return datetime.now().replace(hour=hours, minute=minutes, second=0, microsecond=0)
+                return datetime.now().replace(hour=hours, minute=minutes, second=0, microsecond=0).strftime(TIME_FROMAT)
 
             # === Унификация формата с разделителями ===
             parts = re.split(r"[:.\-_ ]", time_str)  # Заменяем любые разделители
@@ -101,7 +102,7 @@ class Timezone:
                 if minutes == 60:
                     hours, minutes = (hours + 1) % 24, 0
 
-            return datetime.now().replace(hour=hours, minute=minutes, second=0, microsecond=0)
+            return datetime.now().replace(hour=hours, minute=minutes, second=0, microsecond=0).strftime(TIME_FROMAT)
 
         except Exception as e:
             return False
