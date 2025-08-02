@@ -20,7 +20,7 @@ def retry_login_markup(tgid, auth):
     markup.row(btn)
     return markup
 
-def change_timezone():
+def change_timezone_markup():
     markup = types.InlineKeyboardMarkup()
     data = json.dumps({'level': 'change_tz'})
     btn = types.InlineKeyboardButton("ввести своё время", callback_data=data)

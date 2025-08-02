@@ -17,7 +17,7 @@ from src.services.DB.storage import Storage
 from src.services.google_integration.settings import SCOPES, SERVER_TIMEZONE
 from src.services.DB.database_config import charset, port
 from src.services.scheduler import MessageScheduler
-from src.keyboards import auth_markup, retry_login_markup, change_timezone, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
+from src.keyboards import auth_markup, retry_login_markup, change_timezone_markup, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
 
 load_dotenv(find_dotenv())
 
@@ -37,7 +37,7 @@ def start_handler(message):
         storage.add_new_user(message.chat.id, message.from_user.first_name)
 
     token = storage.get_token(message.chat.id)
-    if token and token[0] and message.chat.id != int(os.getenv('MY_ID')):
+    if token and token[0]:
         bot.send_message(message.chat.id, 'И снова здравствуйте!')
 
     else:
@@ -92,6 +92,21 @@ def get_memory_prompt_from_user(message, message_id):
     bot.delete_message(message.chat.id, message_id)
     bot.send_message(message.chat.id, 'Промт добавлен!!', reply_markup=markup)
 
+
+@bot.message_handler()
+def get_user_time_for_tz(message, message_id):
+    markup = change_timezone_markup()
+    bot.delete_message(message.chat.id, message_id)
+    new_time = tz.parse_time(message.text)
+
+    if not new_time:
+        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
+        return
+    else:
+
+    bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     data = json.loads(call.data)
@@ -140,6 +155,10 @@ def callback_query(call):
         markup = settings_markup()
         storage.set_language(data['value'], tgid)
         bot.edit_message_text('Язык успешно изменён', tgid, call.message.message_id, reply_markup=markup)
+
+    elif level == 'change_tz':
+        bot.edit_message_text('Хорошо, тогда введите следующим сообщением ваше текущее время', tgid, call.message.message_id, reply_markup=None)
+        bot.register_next_step_handler()
 
 def motivation_functional(tgid):
     creds = None

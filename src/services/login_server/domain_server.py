@@ -1,3 +1,4 @@
+import datetime
 import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
@@ -13,7 +14,8 @@ from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
 from src.services.scheduler import MessageScheduler
 from src.services.timezone import Timezone
-from src.bot_config import MORNING_TIME, EVENING_TIME
+from src.bot_config import MORNING_TIME, EVENING_TIME, TIME_FROMAT
+from src.keyboards import change_timezone_markup
 
 load_dotenv(find_dotenv())
 
@@ -40,6 +42,7 @@ async def callback(request: Request):
     timezone_result = service.settings().get(setting="timezone").execute()
     timezone = timezone_result.get("value")
     storage.set_timezone(str(timezone), user_tgid)
+    user_time = timezone.convert_user_time_to_server(SERVER_TIMEZONE, datetime.datetime.now().strftime(TIME_FROMAT))
 
     if len(storage.get_all_notifications(user_tgid)) == 0:
         morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()
@@ -48,9 +51,9 @@ async def callback(request: Request):
         sheduler.add_notification(user_tgid, evening_time)
 
         bot.send_message(user_tgid,
-                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings')
+                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings. Бот определил ваше время как {user_time}, если он ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
     else:
-        bot.send_message(user_tgid,f'Авторизация прошла успешно!')
+        bot.send_message(user_tgid,f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""
