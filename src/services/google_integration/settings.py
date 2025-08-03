@@ -5,5 +5,5 @@ SCOPES = [
     "openid"
 ]
 REDIRECT_URI = "http://localhost:5000/oauth2callback"
-CREDS_PATH = r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\src\services\google_integration\credentials.json"
+CREDS_PATH = r"C:\Users\wertiba\PycharmProjects\TelegramMotivation\src\services\google_integration\credentials.json"
 SERVER_TIMEZONE = "Europe/Moscow"

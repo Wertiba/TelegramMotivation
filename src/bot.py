@@ -4,7 +4,7 @@ import time
 import requests
 import os
 
-from dotenv import load_dotenv, find_dotenv
+from dotenv import find_dotenv, load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from src.logger import Logger
@@ -103,8 +103,7 @@ def get_user_time_for_tz(message, message_id):
         bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
         return
     else:
-
-    bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)
+        pass
 
 
 @bot.callback_query_handler(func=lambda call: True)
