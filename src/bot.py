@@ -195,6 +195,11 @@ def run_bot():
 
             # сбрасываем задержку
             delay = 5
+
+        except requests.exceptions.ReadTimeout:
+            logger.debug("Read timeout – no new messages, continuing polling...")
+            continue
+
         except requests.exceptions.ConnectionError as e:
             logger.error(f"Connection error: {e}. Restarting in {delay} sec...")
             time.sleep(delay)
