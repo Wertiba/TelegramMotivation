@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from src.services.singleton import singleton
 from src.bot_config import TIME_FROMAT
 import pytz
@@ -106,3 +106,31 @@ class Timezone:
 
         except Exception as e:
             return False
+
+    def guess_timezone_from_local_time(self, local_time_str: str) -> str:
+        now_utc = datetime.now(timezone.utc)
+
+        # Время в виде datetime в UTC
+        local_time = datetime.combine(
+            now_utc.date(),
+            datetime.strptime(local_time_str, '%H:%M').time(),
+            tzinfo=timezone.utc
+        )
+
+        # Корректировка дня при большой разнице
+        if local_time > now_utc + timedelta(hours=12):
+            local_time -= timedelta(days=1)
+        elif local_time < now_utc - timedelta(hours=12):
+            local_time += timedelta(days=1)
+
+        # Разница между локальным и UTC
+        offset = local_time - now_utc
+        offset_hours = round(offset.total_seconds() / 3600)
+
+        # Преобразуем в pytz-совместимую строку
+        if offset_hours >= 0:
+            tz_name = f"Etc/GMT-{offset_hours}"  # инверсия знака!
+        else:
+            tz_name = f"Etc/GMT+{abs(offset_hours)}"
+
+        return tz_name

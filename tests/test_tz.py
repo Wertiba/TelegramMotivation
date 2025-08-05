@@ -42,6 +42,6 @@ def get_utc_offset_from_name(tz_name: str) -> str:
 # Пример использования
 print(get_utc_offset_from_name("Europe/Moscow"))
 # Пример использования:
-tz = guess_timezone_from_local_time('12:38')
+tz = guess_timezone_from_local_time('0:45')
 print(f"Объект timezone: {tz}")
 print(f"Текстовая зона: {tz_to_str(tz)}")

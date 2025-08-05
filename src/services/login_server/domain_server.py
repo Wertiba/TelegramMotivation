@@ -27,6 +27,15 @@ storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASS
 
 @app.get("/oauth2callback")
 async def callback(request: Request):
+    code = request.query_params.get('code')
+    error = request.query_params.get('error')
+
+    if error:
+        return HTMLResponse(f"Ошибка авторизации: {error}", status_code=400)
+
+    if not code:
+        return HTMLResponse("Отсутствует параметр code в ответе от Google", status_code=400)
+
     #не обрабатывается catch
     state = request.query_params.get('state')
     flow = Flow.from_client_secrets_file(
@@ -35,9 +44,16 @@ async def callback(request: Request):
         state=state,
         redirect_uri=REDIRECT_URI
     )
-    flow.fetch_token(authorization_response=str(request.url))
+    try:
+        flow.fetch_token(authorization_response=str(request.url))
+    except Exception as e:
+        return HTMLResponse(f"Ошибка авторизации: {str(e)}", status_code=400)
+
     creds = flow.credentials
     user_tgid = auth.retrieve_user_by_state(state)
+    if not user_tgid:
+        return HTMLResponse("Не совпадает параметр state. Скорее всего, вы хотите взломать сервер", status_code=401)
+
     storage.set_creds(user_tgid, creds.to_json())
     service = build("calendar", "v3", credentials=creds)
     timezone_result = service.settings().get(setting="timezone").execute()

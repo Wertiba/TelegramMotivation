@@ -107,7 +107,7 @@ class Storage:
         self.execute("DELETE FROM notifications WHERE idnotifications = %s", params=(idnotifications,))
 
     def delete_notification_by_time(self, tgid, time):
-        self.execute("DELETE FROM notifications WHERE tgid = %s AND botify_time = %s", params=(tgid, time))
+        self.execute("DELETE FROM notifications WHERE idusers = (SELECT idusers FROM users WHERE tgid = %s) AND notify_time = %s", params=(tgid, time))
 
     def get_user_history(self, idusers, limit=30):
         return self.fetch_all("SELECT role, content FROM requests_history WHERE idusers = %s ORDER BY created_at ASC LIMIT %s", params=(idusers, limit))

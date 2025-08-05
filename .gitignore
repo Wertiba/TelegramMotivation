@@ -49,3 +49,4 @@ ngrok.exe
 # Environment variables
 .env
 .env.*
+/motivationbotenvironment/

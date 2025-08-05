@@ -103,8 +103,9 @@ def get_user_time_for_tz(message, message_id):
         bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
         return
     else:
-        pass
-
+        user_tz = tz.guess_timezone_from_local_time(new_time)
+        storage.set_timezone(user_tz, message.chat.id)
+        bot.send_message(message.chat.id, f'Временная зона изменена на {user_tz}!')
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
@@ -157,7 +158,7 @@ def callback_query(call):
 
     elif level == 'change_tz':
         bot.edit_message_text('Хорошо, тогда введите следующим сообщением ваше текущее время', tgid, call.message.message_id, reply_markup=None)
-        bot.register_next_step_handler()
+        bot.register_next_step_handler(call.message, get_user_time_for_tz, call.message.message_id)
 
 def motivation_functional(tgid):
     creds = None

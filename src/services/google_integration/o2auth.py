@@ -28,4 +28,7 @@ class Authentication:
         return auth_url
 
     def retrieve_user_by_state(self, state):
-        return self.storage.get_tgid_by_state(state)[0]
+        try:
+            return self.storage.get_tgid_by_state(state)[0]
+        except Exception:
+            return False
