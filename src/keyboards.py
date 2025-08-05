@@ -1,5 +1,4 @@
 import json
-import datetime
 
 from telebot import types
 from src.services.timezone import Timezone
@@ -23,7 +22,7 @@ def retry_login_markup(tgid, auth):
 def change_timezone_markup():
     markup = types.InlineKeyboardMarkup()
     data = json.dumps({'level': 'change_tz'})
-    btn = types.InlineKeyboardButton("ввести своё время", callback_data=data)
+    btn = types.InlineKeyboardButton("Ввести своё время", callback_data=data)
     markup.row(btn)
     return markup
 
@@ -77,7 +76,7 @@ def delete_notification_markup(time):
     if time:
         markup = types.InlineKeyboardMarkup()
         markup.row(types.InlineKeyboardButton('Удалить напоминание',
-                                            callback_data=json.dumps({'level': 'del_time', 'value': time})))
+                                              callback_data=json.dumps({'level': 'del_time', 'value': time})))
     return markup
 
 def add_time_button(time, current):

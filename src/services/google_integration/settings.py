@@ -5,5 +5,5 @@ SCOPES = [
     "openid"
 ]
 REDIRECT_URI = "http://localhost:5000/oauth2callback"
-CREDS_PATH = r"C:\Users\wertiba\Downloads\client_secret_1044554246766-rueb6qe5j21iqhrjicgjbjtt59b37kpk.apps.googleusercontent.com.json"
+CREDS_PATH = r"C:\Users\wertiba\Downloads\client_secret_1044554246766-qdevlgq756mdp72aulke9av3n8f3n76k.apps.googleusercontent.com.json"
 SERVER_TIMEZONE = "Europe/Moscow"

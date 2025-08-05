@@ -24,7 +24,12 @@ class Authentication:
             scopes=SCOPES,
             redirect_uri=REDIRECT_URI
         )
-        auth_url, _ = flow.authorization_url(state=state, access_type='offline', include_granted_scopes='true')
+        auth_url, _ = flow.authorization_url(
+            state=state,
+            access_type='offline',
+            include_granted_scopes='true',
+            prompt='consent'
+        )
         return auth_url
 
     def retrieve_user_by_state(self, state):

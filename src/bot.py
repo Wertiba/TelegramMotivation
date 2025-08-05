@@ -77,8 +77,8 @@ def get_user_time(message, old_time, message_id):
         bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
         return
     if old_time:
-        idnotifications = storage.delete_notification_by_time(message.chat.id, old_time)
-        scheduler.change_notification(message.chat.id, idnotifications, new_time)
+        storage.delete_notification_by_id(old_time)
+        scheduler.change_notification(message.chat.id, old_time, new_time)
     else:
         scheduler.add_notification(message.chat.id, new_time)
     bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)

@@ -59,7 +59,7 @@ async def callback(request: Request):
     timezone_result = service.settings().get(setting="timezone").execute()
     timezone = timezone_result.get("value")
     storage.set_timezone(str(timezone), user_tgid)
-    user_time = tz.convert_user_time_to_server(SERVER_TIMEZONE, datetime.datetime.now().strftime(TIME_FROMAT))
+    user_time = tz.convert_user_time_to_server(SERVER_TIMEZONE, datetime.datetime.now().strftime(TIME_FROMAT)).time().strftime(TIME_FROMAT)
 
     if len(storage.get_all_notifications(user_tgid)) == 0:
         morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()

@@ -38,6 +38,9 @@ class Timezone:
         Конвертирует введённое пользователем время в таймзону сервера,
         используя текущую дату пользователя.
         """
+        if not input_time_str:
+            return False
+
         output_tz = pytz.timezone(self.server_tz) if not output_timezone else pytz.timezone(output_timezone)
         input_tz = pytz.timezone(input_tz_name)
 
