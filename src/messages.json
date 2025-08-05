@@ -1,0 +1,82 @@
+{
+  "ru": {
+    "success_messages": {
+      "notification_added": "Уведомление добавлено!",
+      "prompt_added": "Промт добавлен!!",
+      "change_timezone": "Временная зона! Новая временная зона ",
+      "disable_notification": "Уведомление отключено",
+      "change_language": "Язык успешно изменён"
+    },
+    "error_messages": {
+      "incorrect_time_format": "Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS",
+      "re_entry": "пожалуйста, войдите заново"
+    },
+    "info_messages": {
+      "current_settings": "текущие настройки:",
+      "select_time": "Выберите время, которое хотите изменить",
+      "select_language": "Выберите ваш язык | Choose your language",
+      "get_info_about_user": "Хорошо, пришлите текст, в котором вы расскажете нейросети о себе, чтобы получать более персонализированные ответы",
+      "get_new_notification_time": "Пожалуйста, введите новое время для уведомления",
+      "get_new_time_for_timezone": "Хорошо, тогда введите следующим сообщением ваше текущее время"
+    },
+    "system_messages": {
+      "start_register": "И снова здравствуйте!" ,
+      "start_unregister": "Приветствую! чтобы пользоваться ботом, надо привязать свой календарь",
+      "about": "это мы",
+      "any_text": "Просто сообщение"
+    },
+    "buttons": {
+      "google_button": "Привязать google",
+      "yandex_button": "Привязать yandex",
+      "retry_login": "Повторить вход",
+      "get_new_time_for_timezone": "Ввести своё время",
+      "change_language": "Изменить язык",
+      "reset_notify_time": "Изменить время мотивационных сообщений",
+      "change_info_about_user": "Изменить информацию о себе",
+      "ru": "Русский\uD83C\uDDF7\uD83C\uDDFA",
+      "en": "English\uD83C\uDDF7\uD83C\uDDFA",
+      "add_new_time": "Добавить время",
+      "delete_notification": "Удалить напоминание"
+    }
+  },
+  "en": {
+    "success_messages": {
+      "notification_added": "Notification added!",
+      "prompt_added": "Prompt added!!",
+      "change_timezone": "Timezone changed! New timezone ",
+      "disable_notification": "Notification disabled",
+      "change_language": "Language successfully changed"
+    },
+    "error_messages": {
+      "incorrect_time_format": "Invalid format! Allowed input formats: HH:MM, HH, Ip, HH.MM, HH:MM:SS",
+      "re_entry": "please log in again"
+    },
+    "info_messages": {
+      "current_settings": "current settings:",
+      "select_time": "Select the time you want to change",
+      "select_language": "Select your language | Choose your language",
+      "get_info_about_user": "Okay, send a text telling the neural network about yourself to receive more personalized responses",
+      "get_new_notification_time": "Please enter a new notification time",
+      "get_new_time_for_timezone": "Okay, then enter your current time in the next message"
+    },
+    "system_messages": {
+      "start_register": "Hello again!",
+      "start_unregister": "Welcome! To use the bot, you need to link your calendar",
+      "about": "that's us",
+      "any_text": "Just a message"
+    },
+    "buttons": {
+      "google_button": "Link google",
+      "yandex_button": "Link yandex",
+      "retry_login": "Retry login",
+      "get_new_time_for_timezone": "Enter your own time",
+      "change_language": "Change language",
+      "reset_notify_time": "Change motivational messages time",
+      "change_info_about_user": "Change information about yourself",
+      "ru": "Russian\uD83C\uDDF7\uD83C\uDDFA",
+      "en": "English\uD83C\uDDF7\uD83C\uDDFA",
+      "add_new_time": "Add time",
+      "delete_notification": "Delete reminder"
+    }
+  }
+}
