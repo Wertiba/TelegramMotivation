@@ -5,7 +5,7 @@ from datetime import timedelta
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from src.services.timezone import Timezone
-from src.services.google_integration.settings import SERVER_TIMEZONE
+from src.services.google_integration.settings import SERVER_TIMEZONE, MAX_EVENTS
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
 from src.services.singleton import singleton
@@ -29,25 +29,29 @@ class CalenderClient:
             end_of_day = start_of_day + timedelta(days=1) - timedelta(seconds=1)
             start_iso = start_of_day.isoformat()
             end_iso = end_of_day.isoformat()
-
-            events_result = service.events().list(
-                calendarId='primary',
-                timeMin=start_iso,
-                timeMax=end_iso,
-                singleEvents=True,
-                orderBy='startTime'
-            ).execute()
-            events = events_result.get("items", [])
+            calendar_list = service.calendarList().list().execute()
             result = ''
 
-            if not events:
-                return 'нет никаких событий'
+            for calendar in calendar_list['items']:
+                calendar_id = calendar['id']
+                events_result = service.events().list(
+                    calendarId=calendar_id,
+                    timeMin=start_iso,
+                    timeMax=end_iso,
+                    singleEvents=True,
+                    orderBy="updated",
+                    maxResults=MAX_EVENTS
+                ).execute()
+                events = events_result.get("items", [])
 
-            for event in events:
-                start = event["start"].get("dateTime", event["start"].get("date"))
-                result += (start + ' ' + event['summary'])
+                if not events:
+                    continue
 
-            return result
+                for event in events:
+                    start = event["start"].get("dateTime", event["start"].get("date"))
+                    result += (start + ' ' + event['summary'])
+
+            return result if result else 'нет никаких событий'
 
         except HttpError as error:
             self.logger.error(f"Error while getting calendar events: {error}")

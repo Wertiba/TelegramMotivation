@@ -161,6 +161,21 @@ def callback_query(call):
         bot.register_next_step_handler(call.message, get_user_time_for_tz, call.message.message_id)
 
 def motivation_functional(tgid):
+    creds = get_creds(tgid)
+    if not creds:
+        markup = retry_login_markup(tgid, auth)
+        bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)
+        return
+
+    events = calender.get_events(creds, tgid)
+    prompt = str(events)
+    idusers = storage.get_idusers(tgid)
+    storage.save_request(idusers, 'user', prompt)
+    motivation = gemma.process_prompt(idusers, prompt)
+    bot.send_message(tgid, motivation, parse_mode='Markdown')
+
+
+def get_creds(tgid):
     creds = None
     token = storage.get_token(tgid)
 
@@ -171,18 +186,10 @@ def motivation_functional(tgid):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
             storage.set_creds(tgid, creds.to_json())
+            return creds
         else:
-            markup = retry_login_markup(tgid, auth)
-            bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)
-            return
-
-    events = calender.get_events(creds, tgid)
-    prompt = str(events)
-    idusers = storage.get_idusers(tgid)
-    storage.save_request(idusers, 'user', prompt)
-    motivation = gemma.process_prompt(idusers, prompt)
-    bot.send_message(tgid, motivation, parse_mode='Markdown')
-
+            return False
+    return creds
 
 def run_bot():
     delay = 5  # начальная задержка

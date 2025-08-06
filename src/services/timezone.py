@@ -12,7 +12,6 @@ class Timezone:
         self.server_tz = server_tz
         self.logger = Logger().get_logger()
 
-
     def get_user_day_change(self, user_tz_name: str) -> datetime:
         """
         Возвращает момент времени, когда у пользователя наступит новый день,
@@ -24,16 +23,14 @@ class Timezone:
         now_server = datetime.now(server_tz)
         today_user = now_server.astimezone(user_tz).date()
 
-        # 00:00 в таймзоне пользователя
+        # Полночь в таймзоне пользователя
         user_midnight = user_tz.localize(datetime.combine(today_user, time.min))
         server_midnight = user_midnight.astimezone(server_tz)
 
-        # Если уже наступила полуночь пользователя — берём следующую
-        if server_midnight <= now_server:
-            next_midnight_user = user_midnight + timedelta(days=1)
-            server_midnight = next_midnight_user.astimezone(server_tz)
+        if now_server > server_midnight + timedelta(minutes=1):
+            server_midnight = (user_midnight + timedelta(days=1)).astimezone(server_tz)
 
-        return server_midnight
+        return server_midnight - timedelta(days=1)
 
     def convert_user_time_to_server(self, input_tz_name, input_time_str, output_timezone=False):
         """
