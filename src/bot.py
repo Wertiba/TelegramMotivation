@@ -47,6 +47,10 @@ def start_handler(message):
 
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
+    if not get_creds(message.chat.id):
+        markup = auth_markup(message.chat.id, auth)
+        bot.send_message(message.chat.id, 'Для начала нужно привязать свой календарь!', reply_markup=markup)
+        return
     motivation_functional(message.chat.id)
 
 
@@ -68,8 +72,12 @@ def any_message(message):
 
 @bot.message_handler()
 def get_user_time(message, old_time, message_id):
-    user_tz = storage.get_timezone(message.chat.id)[0]
     markup = settings_markup()
+    if message.content_type != 'text':
+        bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
+        return
+
+    user_tz = storage.get_timezone(message.chat.id)[0]
     new_time = tz.convert_user_time_to_server(user_tz, tz.parse_time(message.text)).time()
     bot.delete_message(message.chat.id, message_id)
 
@@ -87,6 +95,10 @@ def get_user_time(message, old_time, message_id):
 @bot.message_handler()
 def get_memory_prompt_from_user(message, message_id):
     markup = settings_markup()
+    if message.content_type != 'text':
+        bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
+        return
+
     prompt = message.text
     storage.set_memory_prompt(prompt, message.chat.id)
     bot.delete_message(message.chat.id, message_id)
@@ -96,6 +108,10 @@ def get_memory_prompt_from_user(message, message_id):
 @bot.message_handler()
 def get_user_time_for_tz(message, message_id):
     markup = change_timezone_markup()
+    if message.content_type != 'text':
+        bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
+        return
+
     bot.delete_message(message.chat.id, message_id)
     new_time = tz.parse_time(message.text)
 
@@ -127,6 +143,11 @@ def callback_query(call):
 
     elif level == 'settings':
         if data['value'] == 'notify_time':
+            if not get_creds(tgid):
+                markup = auth_markup(tgid, auth)
+                bot.edit_message_text('Для начала нужно привязать свой календарь!', tgid, call.message.message_id, reply_markup=markup)
+                return
+
             user_tz = storage.get_timezone(tgid)
             notifications = storage.get_all_notifications(tgid)
             markup = select_notification_time_markup(notifications, user_tz)

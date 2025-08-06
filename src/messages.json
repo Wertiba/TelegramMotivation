@@ -9,7 +9,8 @@
     },
     "error_messages": {
       "incorrect_time_format": "Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS",
-      "re_entry": "пожалуйста, войдите заново"
+      "re_entry": "пожалуйста, войдите заново",
+      "need_login": "Для начала нужно привязать свой календарь!"
     },
     "info_messages": {
       "current_settings": "текущие настройки:",
@@ -49,7 +50,8 @@
     },
     "error_messages": {
       "incorrect_time_format": "Invalid format! Allowed input formats: HH:MM, HH, Ip, HH.MM, HH:MM:SS",
-      "re_entry": "please log in again"
+      "re_entry": "please log in again",
+      "need_login": "First you need to link your calendar!"
     },
     "info_messages": {
       "current_settings": "current settings:",
