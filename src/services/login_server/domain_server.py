@@ -16,6 +16,7 @@ from src.services.scheduler import MessageScheduler
 from src.services.timezone import Timezone
 from src.bot_config import MORNING_TIME, EVENING_TIME, TIME_FROMAT
 from src.keyboards import change_timezone_markup
+from src.logger import Logger
 
 load_dotenv(find_dotenv())
 
@@ -24,6 +25,7 @@ auth = Authentication()
 sheduler = MessageScheduler()
 tz = Timezone(SERVER_TIMEZONE)
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
+logger = Logger().get_logger()
 
 @app.get("/oauth2callback")
 async def callback(request: Request):
@@ -31,9 +33,12 @@ async def callback(request: Request):
     error = request.query_params.get('error')
 
     if error:
+        logger.warning(f"Auth error: {error}")
         return HTMLResponse(f"Ошибка авторизации: {error}", status_code=400)
 
+
     if not code:
+        logger.warning(f"Code parameter missing")
         return HTMLResponse("Отсутствует параметр code в ответе от Google", status_code=400)
 
     #не обрабатывается catch
@@ -47,11 +52,13 @@ async def callback(request: Request):
     try:
         flow.fetch_token(authorization_response=str(request.url))
     except Exception as e:
+        logger.error(f"Auth error: {error}")
         return HTMLResponse(f"Ошибка авторизации: {str(e)}", status_code=400)
 
     creds = flow.credentials
     user_tgid = auth.retrieve_user_by_state(state)
     if not user_tgid:
+        logger.warning(f"Auth error: state is not valid")
         return HTMLResponse("Не совпадает параметр state. Скорее всего, вы хотите взломать сервер", status_code=401)
 
     storage.set_creds(user_tgid, creds.to_json())

@@ -7,12 +7,14 @@ from src.services.google_integration.settings import SCOPES, REDIRECT_URI, CREDS
 from src.services.DB.storage import Storage
 from src.services.singleton import singleton
 from src.services.DB.database_config import charset, port
+from src.logger import Logger
 
 @singleton
 class Authentication:
     def __init__(self):
         load_dotenv(find_dotenv())
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
+        logger = Logger().get_logger()
 
 
     def get_auth_url(self, user_tgid):

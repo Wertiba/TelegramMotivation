@@ -16,7 +16,7 @@ class OllamaClient:
         load_dotenv(find_dotenv())
         self.url = url
         self.model = model
-        self.logger = Logger()
+        self.logger = Logger().get_logger()
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
     def get_history(self, idusers):

@@ -3,6 +3,7 @@ import pymysql
 from loguru import logger
 from contextlib import contextmanager
 from src.services.singleton import singleton
+from src.logger import Logger
 from dbutils.pooled_db import PooledDB
 
 
@@ -25,6 +26,7 @@ class Storage:
             "ping": ping
         }
         self._pool = PooledDB(**db_config)
+        self.logger = Logger().get_logger()
 
     @contextmanager
     def connection(self):

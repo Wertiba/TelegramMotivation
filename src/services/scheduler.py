@@ -1,6 +1,6 @@
 import os
 from loguru import logger
-from apscheduler.schedulers.background import BackgroundScheduler
+from src.logger import Logger
 from dotenv import find_dotenv, load_dotenv
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
@@ -13,6 +13,7 @@ class MessageScheduler:
         load_dotenv(find_dotenv())
         self.scheduler = create_scheduler()
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
+        self.logger = Logger().get_logger()
 
     def start(self):
         """Запуск планировщика"""

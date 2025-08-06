@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta, timezone
 from src.services.singleton import singleton
 from src.bot_config import TIME_FROMAT
+from src.logger import Logger
 import pytz
 import re
 
@@ -9,6 +10,7 @@ import re
 class Timezone:
     def __init__(self, server_tz):
         self.server_tz = server_tz
+        self.logger = Logger().get_logger()
 
 
     def get_user_day_change(self, user_tz_name: str) -> datetime:

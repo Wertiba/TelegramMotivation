@@ -9,6 +9,7 @@ from src.services.google_integration.settings import SERVER_TIMEZONE
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
 from src.services.singleton import singleton
+from src.logger import Logger
 
 
 @singleton
@@ -17,6 +18,7 @@ class CalenderClient:
         load_dotenv(find_dotenv())
         self.tz = Timezone(SERVER_TIMEZONE)
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
+        self.logger = Logger().get_logger()
 
     def get_events(self, creds, tgid):
         try:
@@ -43,10 +45,9 @@ class CalenderClient:
 
             for event in events:
                 start = event["start"].get("dateTime", event["start"].get("date"))
-                print(start, event["summary"])
                 result += (start + ' ' + event['summary'])
 
             return result
 
         except HttpError as error:
-            print(f"An error occurred: {error}")
+            self.logger.error(f"Error while getting calendar events: {error}")

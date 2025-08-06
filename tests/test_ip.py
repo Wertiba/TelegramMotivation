@@ -1,4 +1,4 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler, ThreadingHTTPServer
 
 class SimpleHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -8,5 +8,6 @@ class SimpleHandler(BaseHTTPRequestHandler):
         self.wfile.write("<h1>Hello World!</h1>".encode("utf-8"))
 
 # 0.0.0.0 — слушать на всех интерфейсах
-server = HTTPServer(("0.0.0.0", 8080), SimpleHandler)
+server = ThreadingHTTPServer(("0.0.0.0", 80), SimpleHandler)
+# server = HTTPServer(("0.0.0.0", 80), SimpleHandler)
 server.serve_forever()
