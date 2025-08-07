@@ -75,9 +75,10 @@ async def callback(request: Request):
         sheduler.add_notification(user_tgid, evening_time)
 
         bot.send_message(user_tgid,
-                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings. Бот определил ваше время как {user_time}, если он ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
+                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings. Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
+        logger.debug(sheduler.get_jobs())
     else:
-        bot.send_message(user_tgid,f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
+        bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content="""

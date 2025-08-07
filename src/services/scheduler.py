@@ -54,3 +54,23 @@ class MessageScheduler:
         Возвращает список всех запланированных заданий.
         """
         return self.scheduler.get_jobs()
+
+    def run_all_notifications(self):
+        notifications = self.storage.get_notifications_from_all_users()
+
+        for n in notifications:
+            idnotifications, idusers, notify_time = n
+            tgid = self.storage.get_tgid(idusers)
+            total_seconds = int(notify_time.total_seconds())
+            hours = (total_seconds // 3600) % 24
+            minutes = (total_seconds % 3600) // 60
+
+            self.scheduler.add_job(
+                motivation_functional_wrapper,
+                "cron",
+                hour=hours,
+                minute=minutes,
+                args=[tgid],
+                id=str(idnotifications),
+                replace_existing=True
+            )

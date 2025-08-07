@@ -185,7 +185,7 @@ def motivation_functional(tgid):
     creds = get_creds(tgid)
     if not creds:
         markup = retry_login_markup(tgid, auth)
-        bot.send_message(tgid, 'пожалуйста, войдите заново', reply_markup=markup)
+        bot.send_message(tgid, 'Вам нужно войти заново, чтобы продолжить', reply_markup=markup)
         return
 
     events = calender.get_events(creds, tgid)
@@ -213,6 +213,8 @@ def get_creds(tgid):
     return creds
 
 def run_bot():
+    scheduler.run_all_notifications()
+    logger.debug(scheduler.get_jobs())
     delay = 5  # начальная задержка
     max_delay = 300  # максимум 5 минут
 

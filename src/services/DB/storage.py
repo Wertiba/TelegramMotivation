@@ -123,11 +123,20 @@ class Storage:
     def get_idusers(self, tgid):
         return self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", params=(tgid,))
 
+    def get_tgid(self, idusers):
+        return self.fetch_one("SELECT tgid FROM users WHERE idusers = %s", params=(idusers,))
+
     def get_all_notifications(self, tgid):
         return self.fetch_all("SELECT idnotifications, notify_time FROM notifications WHERE idusers = (SELECT idusers FROM users WHERE tgid = %s)", params=(tgid,))
 
     def get_memory_prompt(self, idusers):
         return self.fetch_one("SELECT memory_prompt FROM users WHERE idusers = %s", params=(idusers,))
+
+    def get_notifications_from_all_users(self):
+        return self.fetch_all("SELECT * FROM notifications")
+
+    def get_language(self, idusers):
+        return self.fetch_all("SELECT language FROM users WHERE idusers = %s", (idusers,))
 
     def is_user_already_registered(self, tgid):
         return bool(self.fetch_one("SELECT idusers FROM users WHERE tgid = %s", params=(tgid,)))
