@@ -5,6 +5,5 @@ def create_scheduler():
     return sched
 
 def motivation_functional_wrapper(tgid):
-    # здесь просто обёртка, которая внутри вызывает src.bot.motivation_functional
     from src.bot import motivation_functional
     return motivation_functional(tgid)

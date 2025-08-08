@@ -2,6 +2,7 @@ import os
 from loguru import logger
 from src.logger import Logger
 from dotenv import find_dotenv, load_dotenv
+from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
 from src.services.singleton import singleton
@@ -14,6 +15,7 @@ class MessageScheduler:
         self.scheduler = create_scheduler()
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
         self.logger = Logger().get_logger()
+        self.scheduler.add_listener(self.listener, EVENT_JOB_ERROR | EVENT_JOB_EXECUTED)
 
     def start(self):
         """Запуск планировщика"""
@@ -21,6 +23,7 @@ class MessageScheduler:
 
     def add_notification(self, tgid, event_time):
         """Добавление задач для конкретного пользователя"""
+
         if len(self.storage.get_all_notifications(tgid)) < 3:
             idnotifications = str(self.storage.add_notification(tgid, event_time))
             self.scheduler.add_job(
@@ -29,7 +32,7 @@ class MessageScheduler:
                 hour=event_time.hour,
                 minute=event_time.minute,
                 args=[tgid],
-                id=idnotifications,
+                id=str(idnotifications),
                 replace_existing=True
             )
             return True
@@ -74,3 +77,9 @@ class MessageScheduler:
                 id=str(idnotifications),
                 replace_existing=True
             )
+
+    def listener(self, event):
+        if event.exception:
+            logger.error(f"Job {event.job_id} failed: {event.exception}")
+        else:
+            logger.info(f"Job {event.job_id} executed successfully")

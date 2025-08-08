@@ -22,6 +22,7 @@ from src.keyboards import auth_markup, retry_login_markup, change_timezone_marku
 load_dotenv(find_dotenv())
 
 scheduler = MessageScheduler()
+scheduler.start()
 auth = Authentication()
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
@@ -68,6 +69,7 @@ def motivation_handler(message):
 @bot.message_handler(func=lambda m: True)
 def any_message(message):
     bot.send_message(message.chat.id, 'Просто сообщение')
+    logger.debug([scheduler.get_jobs(), id(scheduler)])
 
 
 @bot.message_handler()
@@ -214,7 +216,6 @@ def get_creds(tgid):
 
 def run_bot():
     scheduler.run_all_notifications()
-    logger.debug(scheduler.get_jobs())
     delay = 5  # начальная задержка
     max_delay = 300  # максимум 5 минут
 

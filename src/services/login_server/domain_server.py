@@ -7,12 +7,11 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from src.bot import bot
+from src.bot import bot, scheduler
 from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI, SERVER_TIMEZONE
 from src.services.google_integration.o2auth import Authentication
 from src.services.DB.storage import Storage
 from src.services.DB.database_config import charset, port
-from src.services.scheduler import MessageScheduler
 from src.services.timezone import Timezone
 from src.bot_config import MORNING_TIME, EVENING_TIME, TIME_FROMAT
 from src.keyboards import change_timezone_markup
@@ -22,7 +21,6 @@ load_dotenv(find_dotenv())
 
 app = FastAPI()
 auth = Authentication()
-sheduler = MessageScheduler()
 tz = Timezone(SERVER_TIMEZONE)
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 logger = Logger().get_logger()
@@ -71,12 +69,11 @@ async def callback(request: Request):
     if len(storage.get_all_notifications(user_tgid)) == 0:
         morning_time = tz.convert_user_time_to_server(timezone, MORNING_TIME).time()
         evening_time = tz.convert_user_time_to_server(timezone, EVENING_TIME).time()
-        sheduler.add_notification(user_tgid, morning_time)
-        sheduler.add_notification(user_tgid, evening_time)
+        scheduler.add_notification(user_tgid, morning_time)
+        scheduler.add_notification(user_tgid, evening_time)
 
         bot.send_message(user_tgid,
                          f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings. Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
-        logger.debug(sheduler.get_jobs())
     else:
         bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
 
@@ -103,7 +100,7 @@ async def callback(request: Request):
 
 def run_uvicorn():
     import uvicorn
-    uvicorn.run("src.services.login_server.domain_server:app", host="0.0.0.0", port=80, reload=True)
+    uvicorn.run("src.services.login_server.domain_server:app", host="0.0.0.0", port=80, reload=False)
 
-if __name__ == '__main__':
-    run_uvicorn()
+# if __name__ == '__main__':
+#     run_uvicorn()
