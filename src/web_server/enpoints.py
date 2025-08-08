@@ -1,11 +1,11 @@
-import datetime
 import os
+import datetime
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 from dotenv import load_dotenv, find_dotenv
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from fastapi import FastAPI, Request
+from fastapi import Request, APIRouter
 from fastapi.responses import HTMLResponse
 from settings.config import SCOPES, CREDS_PATH, REDIRECT_URI, SERVER_TIMEZONE, MORNING_TIME, EVENING_TIME, TIME_FROMAT, charset, port
 from src.tgbot.bot import bot, scheduler
@@ -14,16 +14,17 @@ from src.DB.storage import Storage
 from src.services.timezone import Timezone
 from src.tgbot.keyboards import change_timezone_markup
 from src.services.logger import Logger
+from src.web_server.html_response import success_html
 
 load_dotenv(find_dotenv())
-
-app = FastAPI()
+router = APIRouter()
 auth = Authentication()
 tz = Timezone(SERVER_TIMEZONE)
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 logger = Logger().get_logger()
 
-@app.get("/oauth2callback")
+
+@router.get("/oauth2callback")
 async def callback(request: Request):
     code = request.query_params.get('code')
     error = request.query_params.get('error')
@@ -76,29 +77,4 @@ async def callback(request: Request):
         bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
-    return HTMLResponse(content="""
-        <html>
-            <head>
-                <title>Успешная авторизация</title>
-                <style>
-                    body { font-family: Arial; background: #f7f7f7; text-align: center; padding: 100px; }
-                    .box { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
-                    h1 { color: green; }
-                </style>
-            </head>
-            <body>
-                <div class="box">
-                    <h1>✅ Успешная авторизация</h1>
-                    <p>Теперь вы можете вернуться в Telegram.</p>
-                    <a href="https://t.me/BestMotivationBot">Нажмите здесь, чтобы вернуться в бота</a>
-                </div>
-            </body>
-        </html>
-    """, status_code=200)
-
-def run_uvicorn():
-    import uvicorn
-    uvicorn.run("src.login_server.domain_server:app", host="0.0.0.0", port=80, reload=False)
-
-# if __name__ == '__main__':
-#     run_uvicorn()
+    return HTMLResponse(content=success_html(), status_code=200)

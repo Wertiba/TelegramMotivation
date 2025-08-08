@@ -1,4 +1,5 @@
 import sys
+import logging
 
 from loguru import logger
 from pathlib import Path
@@ -53,3 +54,11 @@ class Logger:
     def get_logger(self):
         """Возвращает готовый экземпляр loguru.logger"""
         return self._logger
+
+
+class InterceptHandler(logging.Handler):
+    def emit(self, record):
+        # Получить логгер loguru
+        log = logger.bind()
+        level = record.levelname
+        log.opt(depth=6, exception=record.exc_info).log(level, record.getMessage())

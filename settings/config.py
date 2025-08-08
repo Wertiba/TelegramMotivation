@@ -13,7 +13,7 @@ MORNING_TIME = '9:00'
 EVENING_TIME = '20:00'
 MAX_COUNT_NOTIFICATIONS = 3
 TIME_FROMAT = "%H:%M"
-LOGS_PATH = r"C:\Users\wertiba\Downloads\Telegram Desktop\TelegramMotivation_project\TelegramMotivation\debug.txt"
+LOGS_PATH = r"C:\Users\wertiba\PycharmProjects\TelegramMotivation\debug.txt"
 
 charset = 'utf8mb4'
 port = 3306
