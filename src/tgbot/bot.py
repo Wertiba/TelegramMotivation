@@ -95,8 +95,14 @@ def get_user_time(message, old_time, message_id):
         return
 
     user_tz = storage.get_timezone(message.chat.id)[0]
-    new_time = tz.convert_user_time_to_server(user_tz, tz.parse_time(message.text)).time()
     bot.delete_message(message.chat.id, message_id)
+
+    try:
+        new_time = tz.convert_user_time_to_server(user_tz, tz.parse_time(message.text)).time()
+    except Exception:
+        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS',
+                         reply_markup=markup)
+        return
 
     if not new_time:
         bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
@@ -106,7 +112,7 @@ def get_user_time(message, old_time, message_id):
         scheduler.change_notification(message.chat.id, old_time, new_time)
     else:
         scheduler.add_notification(message.chat.id, new_time)
-    bot.send_message(message.chat.id, 'Уведомление добавлено!', reply_markup=markup)
+    bot.send_message(message.chat.id, 'Ежедневное сообщение добавлено!', reply_markup=markup)
 
 
 @bot.message_handler()
@@ -130,7 +136,13 @@ def get_user_time_for_tz(message, message_id):
         return
 
     bot.delete_message(message.chat.id, message_id)
-    new_time = tz.parse_time(message.text)
+
+    try:
+        new_time = tz.parse_time(message.text)
+    except Exception:
+        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS',
+                         reply_markup=markup)
+        return
 
     if not new_time:
         bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
