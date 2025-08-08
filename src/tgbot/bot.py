@@ -4,6 +4,7 @@ import time
 import requests
 import os
 
+from telebot.apihelper import ApiTelegramException
 from dotenv import find_dotenv, load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -61,19 +62,32 @@ def motivation_handler(message):
 
 @bot.message_handler(commands=['settings'])
 def motivation_handler(message):
-    markup = settings_markup()
-    bot.send_message(message.chat.id, 'текущие настройки:', reply_markup=markup)
+    markup = settings_markup(message.chat.id, auth)
+    language = storage.get_language_by_tgid(message.chat.id)[0][0]
+    msg = f'Текущие настройки:\nЯзык: {language}\n'
+    has_google = get_creds(message.chat.id)
+    if has_google:
+        timezone = storage.get_timezone(message.chat.id)[0]
+        msg += f'Таймзона: {timezone}\nПривязан google календарь'
+    else:
+        msg += 'Календарь не привязан'
+
+    bot.send_message(message.chat.id, msg, reply_markup=markup)
 
 
-@bot.message_handler(func=lambda m: True)
+@bot.message_handler(func=lambda m: True,content_types=[
+    'text', 'audio', 'document', 'photo', 'sticker', 'video',
+    'video_note', 'voice', 'location', 'contact', 'venue',
+    'animation', 'dice', 'poll', 'game', 'invoice',
+    'successful_payment', 'connected_website', 'passport_data', 'web_app_data'
+])
 def any_message(message):
     bot.send_message(message.chat.id, 'Просто сообщение')
-    logger.debug([scheduler.get_jobs(), id(scheduler)])
 
 
 @bot.message_handler()
 def get_user_time(message, old_time, message_id):
-    markup = settings_markup()
+    markup = settings_markup(message.chat.id, auth)
     if message.content_type != 'text':
         bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
         return
@@ -95,7 +109,7 @@ def get_user_time(message, old_time, message_id):
 
 @bot.message_handler()
 def get_memory_prompt_from_user(message, message_id):
-    markup = settings_markup()
+    markup = settings_markup(message.chat.id, auth)
     if message.content_type != 'text':
         bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
         return
@@ -170,11 +184,11 @@ def callback_query(call):
     elif level == 'del_time':
         storage.delete_notification_by_id(data['value'])
         scheduler.remove_notification(data['value'])
-        markup = settings_markup()
+        markup = settings_markup(tgid, auth)
         bot.edit_message_text('Уведомление отключено', tgid, call.message.message_id, reply_markup=markup)
 
     elif level == 'language':
-        markup = settings_markup()
+        markup = settings_markup(tgid, auth)
         storage.set_language(data['value'], tgid)
         bot.edit_message_text('Язык успешно изменён', tgid, call.message.message_id, reply_markup=markup)
 
@@ -230,10 +244,18 @@ def run_bot():
             logger.debug("Read timeout – no new messages, continuing polling...")
             continue
 
+        except ApiTelegramException as e:
+            if e.error_code == 403 and 'bot was blocked by the user' in e.result:
+                logger.debug(f"User blocked the bot - skipping")
+            else:
+                logger.error(f"Telegram API error: {e}")
+            continue
+
         except requests.exceptions.ConnectionError as e:
             logger.error(f"Connection error: {e}. Restarting in {delay} sec...")
             time.sleep(delay)
             delay = min(delay * 2, max_delay)  # увеличиваем задержку
+
         except Exception as e:
             logger.exception(f"Unexpected error: {e}. Restarting in {delay} sec...")
             time.sleep(delay)

@@ -26,7 +26,7 @@ def change_timezone_markup():
     markup.row(btn)
     return markup
 
-def settings_markup():
+def settings_markup(tgid, auth):
     markup = types.InlineKeyboardMarkup()
     change_language_data = json.dumps({'level': 'settings', 'value': 'language'})
     change_notify_time_data = json.dumps({'level': 'settings', 'value': 'notify_time'})
@@ -34,9 +34,11 @@ def settings_markup():
     btn_change_language = types.InlineKeyboardButton("Изменить язык", callback_data=change_language_data)
     btn_change_notify_time = types.InlineKeyboardButton('Изменить время мотивационных сообщений', callback_data=change_notify_time_data)
     btn_change_user_info = types.InlineKeyboardButton('Изменить информацию о себе', callback_data=change_user_info_data)
+    btn_change_calendar = types.InlineKeyboardButton('Заново привязать google календарь', url=auth.get_auth_url(tgid))
     markup.row(btn_change_language)
     markup.row(btn_change_notify_time)
     markup.row(btn_change_user_info)
+    markup.row(btn_change_calendar)
     return markup
 
 def select_language_markup():
