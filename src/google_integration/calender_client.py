@@ -4,12 +4,11 @@ from dotenv import find_dotenv, load_dotenv
 from datetime import timedelta
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from settings.config import SERVER_TIMEZONE, MAX_EVENTS, charset, port
 from src.services.timezone import Timezone
-from src.services.google_integration.settings import SERVER_TIMEZONE, MAX_EVENTS
-from src.services.DB.storage import Storage
-from src.services.DB.database_config import charset, port
+from src.DB.storage import Storage
 from src.services.singleton import singleton
-from src.logger import Logger
+from src.services.logger import Logger
 
 
 @singleton

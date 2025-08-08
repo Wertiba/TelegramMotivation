@@ -7,17 +7,16 @@ import os
 from dotenv import find_dotenv, load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from src.logger import Logger
+from settings.config import SCOPES, SERVER_TIMEZONE, charset, port
+from settings.ollama_settings import model, url
+from src.services.logger import Logger
 from src.services.timezone import Timezone
-from src.services.google_integration.o2auth import Authentication
-from src.services.google_integration.calender_client import CalenderClient
-from src.services.ollama.ollama_client import OllamaClient
-from src.services.ollama.ollama_settings import model, url
-from src.services.DB.storage import Storage
-from src.services.google_integration.settings import SCOPES, SERVER_TIMEZONE
-from src.services.DB.database_config import charset, port
-from src.services.scheduler import MessageScheduler
-from src.keyboards import auth_markup, retry_login_markup, change_timezone_markup, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
+from src.google_integration.o2auth import Authentication
+from src.google_integration.calender_client import CalenderClient
+from src.ollama.ollama_client import OllamaClient
+from src.DB.storage import Storage
+from src.scheduler.scheduler import MessageScheduler
+from src.tgbot.keyboards import auth_markup, retry_login_markup, change_timezone_markup, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
 
 load_dotenv(find_dotenv())
 

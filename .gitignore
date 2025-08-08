@@ -36,10 +36,10 @@ dist/
 *.spec
 
 # Local config
-src/services/DB/database_config.py
-src/services/google_integration/credentials.json
-src/bot_config.py
-garbage/
+settings/database_config.py
+settings/credentials.json
+settings/bot_config.py
+tests/garbage/
 TelegramMotivationDB.mwb.bak
 TelegramMotivationDB.mwb
 debug.txt

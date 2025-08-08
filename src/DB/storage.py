@@ -1,10 +1,11 @@
 import datetime
 import pymysql
-from loguru import logger
+
 from contextlib import contextmanager
-from src.services.singleton import singleton
-from src.logger import Logger
 from dbutils.pooled_db import PooledDB
+from loguru import logger
+from src.services.singleton import singleton
+from src.services.logger import Logger
 
 
 @singleton

@@ -4,10 +4,10 @@ import os
 import re
 
 from dotenv import load_dotenv, find_dotenv
-from src.services.ollama.ollama_settings import system_prompt, temperarure, few_shot
-from src.services.DB.storage import Storage
-from src.logger import Logger
-from src.services.DB.database_config import charset, port
+from settings.config import charset, port
+from settings.ollama_settings import system_prompt, temperarure, few_shot
+from src.DB.storage import Storage
+from src.services.logger import Logger
 from src.services.singleton import singleton
 
 

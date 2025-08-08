@@ -1,12 +1,13 @@
 import os
+
 from loguru import logger
-from src.logger import Logger
 from dotenv import find_dotenv, load_dotenv
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
-from src.services.DB.storage import Storage
-from src.services.DB.database_config import charset, port
+from settings.config import charset, port
+from src.scheduler.scheduler_utils import create_scheduler, motivation_functional_wrapper
+from src.services.logger import Logger
+from src.DB.storage import Storage
 from src.services.singleton import singleton
-from src.scheduler_utils import create_scheduler, motivation_functional_wrapper
 
 @singleton
 class MessageScheduler:

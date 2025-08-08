@@ -1,7 +1,8 @@
 import sys
+
 from loguru import logger
 from pathlib import Path
-from src.bot_config import LOGS_PATH
+from settings.config import LOGS_PATH
 from src.services.singleton import singleton
 
 

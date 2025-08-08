@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv, find_dotenv
-from src.services.DB.storage import Storage
-from src.services.ollama.ollama_client import OllamaClient
-from src.services.ollama.ollama_settings import url, model
-from src.services.DB.database_config import charset, port
+from src.DB.storage import Storage
+from src.ollama.ollama_client import OllamaClient
+from settings.ollama_settings import url, model
+from settings.database_config import charset, port
 
 load_dotenv(find_dotenv())
 gemini = OllamaClient(url, model)

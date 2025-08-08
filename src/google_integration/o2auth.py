@@ -3,11 +3,10 @@ import os
 
 from dotenv import load_dotenv, find_dotenv
 from google_auth_oauthlib.flow import Flow
-from src.services.google_integration.settings import SCOPES, REDIRECT_URI, CREDS_PATH
-from src.services.DB.storage import Storage
+from settings.config import SCOPES, REDIRECT_URI, CREDS_PATH, charset, port
+from src.DB.storage import Storage
 from src.services.singleton import singleton
-from src.services.DB.database_config import charset, port
-from src.logger import Logger
+from src.services.logger import Logger
 
 @singleton
 class Authentication:

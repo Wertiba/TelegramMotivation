@@ -1,9 +1,10 @@
-from datetime import datetime, time, timedelta, timezone
-from src.services.singleton import singleton
-from src.bot_config import TIME_FROMAT
-from src.logger import Logger
 import pytz
 import re
+
+from datetime import datetime, time, timedelta, timezone
+from settings.config import TIME_FROMAT
+from src.services.singleton import singleton
+from src.services.logger import Logger
 
 
 @singleton

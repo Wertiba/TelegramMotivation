@@ -7,15 +7,13 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
-from src.bot import bot, scheduler
-from src.services.google_integration.settings import SCOPES, CREDS_PATH, REDIRECT_URI, SERVER_TIMEZONE
-from src.services.google_integration.o2auth import Authentication
-from src.services.DB.storage import Storage
-from src.services.DB.database_config import charset, port
+from settings.config import SCOPES, CREDS_PATH, REDIRECT_URI, SERVER_TIMEZONE, MORNING_TIME, EVENING_TIME, TIME_FROMAT, charset, port
+from src.tgbot.bot import bot, scheduler
+from src.google_integration.o2auth import Authentication
+from src.DB.storage import Storage
 from src.services.timezone import Timezone
-from src.bot_config import MORNING_TIME, EVENING_TIME, TIME_FROMAT
-from src.keyboards import change_timezone_markup
-from src.logger import Logger
+from src.tgbot.keyboards import change_timezone_markup
+from src.services.logger import Logger
 
 load_dotenv(find_dotenv())
 
@@ -100,7 +98,7 @@ async def callback(request: Request):
 
 def run_uvicorn():
     import uvicorn
-    uvicorn.run("src.services.login_server.domain_server:app", host="0.0.0.0", port=80, reload=False)
+    uvicorn.run("src.login_server.domain_server:app", host="0.0.0.0", port=80, reload=False)
 
 # if __name__ == '__main__':
 #     run_uvicorn()

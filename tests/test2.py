@@ -1,4 +1,4 @@
-from src.logger import Logger
+from src.services.logger import Logger
 
 logger = Logger().get_logger()
 

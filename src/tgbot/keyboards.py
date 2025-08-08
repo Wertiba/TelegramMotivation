@@ -1,9 +1,9 @@
 import json
 
 from telebot import types
+from settings.config import SERVER_TIMEZONE, MAX_COUNT_NOTIFICATIONS, TIME_FROMAT
 from src.services.timezone import Timezone
-from src.services.google_integration.settings import SERVER_TIMEZONE
-from src.bot_config import MAX_COUNT_NOTIFICATIONS, TIME_FROMAT
+
 
 def auth_markup(tgid, auth):
     markup = types.InlineKeyboardMarkup()

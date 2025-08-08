@@ -5,5 +5,5 @@ def create_scheduler():
     return sched
 
 def motivation_functional_wrapper(tgid):
-    from src.bot import motivation_functional
+    from src.tgbot.bot import motivation_functional
     return motivation_functional(tgid)
