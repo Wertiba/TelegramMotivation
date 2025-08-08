@@ -52,7 +52,9 @@ def motivation_handler(message):
         markup = auth_markup(message.chat.id, auth)
         bot.send_message(message.chat.id, 'Для начала нужно привязать свой календарь!', reply_markup=markup)
         return
-    motivation_functional(message.chat.id)
+
+    msgid = bot.send_message(message.chat.id, 'Запрос обрабатывается🌀')
+    motivation_functional(message.chat.id, msgid)
 
 
 @bot.message_handler(commands=['about'])
@@ -196,7 +198,7 @@ def callback_query(call):
         bot.edit_message_text('Хорошо, тогда введите следующим сообщением ваше текущее время', tgid, call.message.message_id, reply_markup=None)
         bot.register_next_step_handler(call.message, get_user_time_for_tz, call.message.message_id)
 
-def motivation_functional(tgid):
+def motivation_functional(tgid, msgid=None):
     creds = get_creds(tgid)
     if not creds:
         markup = retry_login_markup(tgid, auth)
@@ -208,7 +210,7 @@ def motivation_functional(tgid):
     idusers = storage.get_idusers(tgid)
     storage.save_request(idusers, 'user', prompt)
     motivation = gemma.process_prompt(idusers, prompt)
-    bot.send_message(tgid, motivation, parse_mode='Markdown')
+    bot.send_message(tgid, motivation, parse_mode='Markdown') if not msgid else bot.edit_message_text(motivation, tgid, msgid.message_id)
 
 
 def get_creds(tgid):
