@@ -226,20 +226,24 @@ def motivation_functional(tgid, msgid=None):
 
 
 def get_creds(tgid):
-    creds = None
-    token = storage.get_token(tgid)
+    try:
+        creds = None
+        token = storage.get_token(tgid)
 
-    if token and token[0]:
-        creds = Credentials.from_authorized_user_info(json.loads(token[0]), SCOPES)
+        if token and token[0]:
+            creds = Credentials.from_authorized_user_info(json.loads(token[0]), SCOPES)
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            storage.set_creds(tgid, creds.to_json())
-            return creds
-        else:
-            return False
-    return creds
+        if not creds or not creds.valid:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+                storage.set_creds(tgid, creds.to_json())
+                return creds
+            else:
+                return False
+        return creds
+    except Exception as e:
+        logger.error(f"Error while getting creds from user: {e}")
+        return False
 
 def run_bot():
     scheduler.run_all_notifications()
