@@ -28,8 +28,8 @@ class Authentication:
         auth_url, _ = flow.authorization_url(
             state=state,
             access_type='offline',
-            include_granted_scopes='true',
-            prompt='consent'
+            include_granted_scopes='false',
+            prompt='consent',
         )
         return auth_url
 
