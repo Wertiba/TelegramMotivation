@@ -18,3 +18,21 @@ def success_html():
         </body>
     </html>
     """
+
+def homepage_html():
+    return """
+    <!DOCTYPE html>
+    <html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content="Описание твоего сайта" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="your-custom-meta" content="custom value" />
+        <title>Главная страница</title>
+        <meta name="google-site-verification" content="OVhkLaeMtBGi_2cHiVH5_XjHlqfkFFM4G5fQqfYkNrY" />
+    </head>
+    <body>
+        <h1>Добро пожаловать на главную страницу!</h1>
+    </body>
+    </html>
+    """

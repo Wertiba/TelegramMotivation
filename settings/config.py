@@ -12,6 +12,7 @@ EVENING_TIME = '20:00'
 MAX_COUNT_NOTIFICATIONS = 3
 TIME_FROMAT = "%H:%M"
 LOGS_PATH = r"C:\Users\wertiba\PycharmProjects\TelegramMotivation\debug.txt"
+MESSAGES_PATH = r"C:\Users\wertiba\PycharmProjects\TelegramMotivation\settings\messages.json"
 
 charset = 'utf8mb4'
 port = 3306

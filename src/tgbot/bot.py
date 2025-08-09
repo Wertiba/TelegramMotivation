@@ -8,7 +8,8 @@ from telebot.apihelper import ApiTelegramException
 from dotenv import find_dotenv, load_dotenv
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-from settings.config import SCOPES, SERVER_TIMEZONE, charset, port
+from google.auth.exceptions import RefreshError
+from settings.config import SCOPES, SERVER_TIMEZONE, charset, port, MESSAGES_PATH
 from settings.ollama_settings import model, url
 from src.services.logger import Logger
 from src.services.timezone import Timezone
@@ -31,67 +32,78 @@ calender = CalenderClient()
 gemma = OllamaClient(url, model)
 tz = Timezone(SERVER_TIMEZONE)
 
+with open(MESSAGES_PATH, encoding='utf-8') as f:
+    messages = json.load(f)
+
 
 @bot.message_handler(commands=['start'])
 def start_handler(message):
     if not storage.is_user_already_registered(message.chat.id):
         storage.add_new_user(message.chat.id, message.from_user.first_name)
 
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
     token = storage.get_token(message.chat.id)
+
     if token and token[0]:
-        bot.send_message(message.chat.id, 'И снова здравствуйте!')
+        bot.send_message(message.chat.id, messages[lang]["system_messages"]["start_register"])
 
     else:
         markup = auth_markup(message.chat.id, auth)
-        bot.send_message(message.chat.id, 'Приветствую! чтобы пользоваться ботом, надо привязать свой календарь', reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["system_messages"]["start_unregister"], reply_markup=markup)
 
 
 @bot.message_handler(commands=['motivation'])
 def motivation_handler(message):
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
     if not get_creds(message.chat.id):
         markup = auth_markup(message.chat.id, auth)
-        bot.send_message(message.chat.id, 'Для начала нужно привязать свой календарь!', reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["need_login"], reply_markup=markup)
         return
 
-    msgid = bot.send_message(message.chat.id, 'Запрос обрабатывается🌀')
+    msgid = bot.send_message(message.chat.id, messages[lang]["info_messages"]["processing_prompt"])
     motivation_functional(message.chat.id, msgid)
 
 
 @bot.message_handler(commands=['about'])
-def motivation_handler(message):
-    bot.send_message(message.chat.id, 'это мы')
+def about_handler(message):
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
+    bot.send_message(message.chat.id, messages[lang]["system_messages"]["about"])
 
 
 @bot.message_handler(commands=['settings'])
-def motivation_handler(message):
+def settings_handler(message):
     markup = settings_markup(message.chat.id, auth)
     language = storage.get_language_by_tgid(message.chat.id)[0][0]
-    msg = f'Текущие настройки:\nЯзык: {language}\n'
+    # msg = f'Текущие настройки:\nЯзык: {language}\n'
+    msg = messages[language]["info_messages"]["settings"]["msg1"] + language
     has_google = get_creds(message.chat.id)
     if has_google:
         timezone = storage.get_timezone(message.chat.id)[0]
-        msg += f'Таймзона: {timezone}\nПривязан google календарь'
+        # msg += f'Таймзона: {timezone}\nПривязан google календарь'
+        msg += messages[language]["info_messages"]["settings"]["msg2"] + timezone + messages[language]["info_messages"]["settings"]["msg3"]
     else:
-        msg += 'Календарь не привязан'
+        msg += messages[language]["info_messages"]["settings"]["msg4"]
 
     bot.send_message(message.chat.id, msg, reply_markup=markup)
 
 
-@bot.message_handler(func=lambda m: True,content_types=[
+@bot.message_handler(func=lambda m: True, content_types=[
     'text', 'audio', 'document', 'photo', 'sticker', 'video',
     'video_note', 'voice', 'location', 'contact', 'venue',
     'animation', 'dice', 'poll', 'game', 'invoice',
     'successful_payment', 'connected_website', 'passport_data', 'web_app_data'
 ])
 def any_message(message):
-    bot.send_message(message.chat.id, 'Просто сообщение')
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
+    bot.send_message(message.chat.id, messages[lang]["system_messages"]["any_text"])
 
 
 @bot.message_handler()
 def get_user_time(message, old_time, message_id):
     markup = settings_markup(message.chat.id, auth)
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
     if message.content_type != 'text':
-        bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["only_text"], reply_markup=markup)
         return
 
     user_tz = storage.get_timezone(message.chat.id)[0]
@@ -100,39 +112,40 @@ def get_user_time(message, old_time, message_id):
     try:
         new_time = tz.convert_user_time_to_server(user_tz, tz.parse_time(message.text)).time()
     except Exception:
-        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS',
-                         reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["incorrect_time_format"], reply_markup=markup)
         return
 
     if not new_time:
-        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["incorrect_time_format"], reply_markup=markup)
         return
     if old_time:
         storage.delete_notification_by_id(old_time)
         scheduler.change_notification(message.chat.id, old_time, new_time)
     else:
         scheduler.add_notification(message.chat.id, new_time)
-    bot.send_message(message.chat.id, 'Ежедневное сообщение добавлено!', reply_markup=markup)
+    bot.send_message(message.chat.id, messages[lang]["success_messages"]["notification_added"], reply_markup=markup)
 
 
 @bot.message_handler()
 def get_memory_prompt_from_user(message, message_id):
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
     markup = settings_markup(message.chat.id, auth)
     if message.content_type != 'text':
-        bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["only_text"], reply_markup=markup)
         return
 
     prompt = message.text
     storage.set_memory_prompt(prompt, message.chat.id)
     bot.delete_message(message.chat.id, message_id)
-    bot.send_message(message.chat.id, 'Промт добавлен!!', reply_markup=markup)
+    bot.send_message(message.chat.id, messages[lang]["success_messages"]["prompt_added"], reply_markup=markup)
 
 
 @bot.message_handler()
 def get_user_time_for_tz(message, message_id):
-    markup = change_timezone_markup()
+    lang = storage.get_language_by_tgid(message.chat.id)[0][0]
+    markup = change_timezone_markup(message.chat.id)
     if message.content_type != 'text':
-        bot.send_message(message.chat.id, "Пожалуйста, отправьте текст, а не фото/видео/документ.", reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["only_text"], reply_markup=markup)
         return
 
     bot.delete_message(message.chat.id, message_id)
@@ -140,81 +153,81 @@ def get_user_time_for_tz(message, message_id):
     try:
         new_time = tz.parse_time(message.text)
     except Exception:
-        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS',
-                         reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["incorrect_time_format"], reply_markup=markup)
         return
 
     if not new_time:
-        bot.send_message(message.chat.id, 'Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS', reply_markup=markup)
+        bot.send_message(message.chat.id, messages[lang]["error_messages"]["incorrect_time_format"], reply_markup=markup)
         return
     else:
         user_tz = tz.guess_timezone_from_local_time(new_time)
         storage.set_timezone(user_tz, message.chat.id)
-        bot.send_message(message.chat.id, f'Временная зона изменена на {user_tz}!')
+        bot.send_message(message.chat.id, messages[lang]["success_messages"]["change_timezone"] + user_tz)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     data = json.loads(call.data)
     tgid = call.message.chat.id
     level = data['level']
+    lang = storage.get_language_by_tgid(tgid)[0][0]
     bot.clear_step_handler_by_chat_id(tgid)
 
     if level == 'calendar':
         if data['value'] == 'yandex':
             bot.answer_callback_query(
                 callback_query_id=call.id,
-                text='Coming soon)',
+                text=messages[lang]["system_messages"]["yandex_error"],
                 show_alert=True
             )
 
-        elif data['value'] == 'google':
-            pass
+        # elif data['value'] == 'google':
 
     elif level == 'settings':
         if data['value'] == 'notify_time':
             if not get_creds(tgid):
                 markup = auth_markup(tgid, auth)
-                bot.edit_message_text('Для начала нужно привязать свой календарь!', tgid, call.message.message_id, reply_markup=markup)
+                bot.edit_message_text(messages[lang]["error_messages"]["need_login"], tgid, call.message.message_id, reply_markup=markup)
                 return
 
             user_tz = storage.get_timezone(tgid)
             notifications = storage.get_all_notifications(tgid)
-            markup = select_notification_time_markup(notifications, user_tz)
-            bot.edit_message_text('Выберите время, которое хотите изменить', tgid, call.message.message_id, reply_markup=markup)
+            markup = select_notification_time_markup(notifications, user_tz, lang)
+            bot.edit_message_text(messages[lang]["info_messages"]["select_time"], tgid, call.message.message_id, reply_markup=markup)
 
         elif data['value'] == 'language':
             markup = select_language_markup()
-            bot.edit_message_text('Выберите ваш язык | Choose your language', tgid, call.message.message_id, reply_markup=markup)
+            bot.edit_message_text(messages[lang]["info_messages"]["select_language"], tgid, call.message.message_id, reply_markup=markup)
 
         elif data['value'] == 'my_info':
-            bot.edit_message_text('Хорошо, пришлите текст, в котором вы расскажете нейросети о себе, чтобы получать более персонализированные ответы', tgid, call.message.message_id, reply_markup=None)
+            bot.edit_message_text(messages[lang]["info_messages"]["get_info_about_user"], tgid, call.message.message_id, reply_markup=None)
             bot.register_next_step_handler(call.message, get_memory_prompt_from_user, call.message.message_id)
 
     elif level == 'notify_time':
-        markup = delete_notification_markup(data['value'])
-        bot.edit_message_text('Пожалуйста, введите новое время для уведомления', tgid, call.message.message_id, reply_markup=markup)
+        markup = delete_notification_markup(data['value'], lang)
+        bot.edit_message_text(messages[lang]["info_messages"]["get_new_notification_time"], tgid, call.message.message_id, reply_markup=markup)
         bot.register_next_step_handler(call.message, get_user_time, data['value'], call.message.message_id)
 
     elif level == 'del_time':
         storage.delete_notification_by_id(data['value'])
         scheduler.remove_notification(data['value'])
         markup = settings_markup(tgid, auth)
-        bot.edit_message_text('Уведомление отключено', tgid, call.message.message_id, reply_markup=markup)
+        bot.edit_message_text(messages[lang]["success_messages"]["disable_notification"], tgid, call.message.message_id, reply_markup=markup)
 
     elif level == 'language':
-        markup = settings_markup(tgid, auth)
         storage.set_language(data['value'], tgid)
-        bot.edit_message_text('Язык успешно изменён', tgid, call.message.message_id, reply_markup=markup)
+        markup = settings_markup(tgid, auth)
+        bot.edit_message_text(messages[data['value']]["success_messages"]["change_language"], tgid, call.message.message_id, reply_markup=markup)
 
     elif level == 'change_tz':
-        bot.edit_message_text('Хорошо, тогда введите следующим сообщением ваше текущее время', tgid, call.message.message_id, reply_markup=None)
+        bot.edit_message_text(messages[lang]["info_messages"]["get_new_time_for_timezone"], tgid, call.message.message_id, reply_markup=None)
         bot.register_next_step_handler(call.message, get_user_time_for_tz, call.message.message_id)
 
 def motivation_functional(tgid, msgid=None):
     creds = get_creds(tgid)
+    lang = storage.get_language_by_tgid(tgid)[0][0]
     if not creds:
         markup = retry_login_markup(tgid, auth)
-        bot.send_message(tgid, 'Вам нужно войти заново, чтобы продолжить', reply_markup=markup)
+        bot.send_message(tgid, messages[lang]["error_messages"]["re_entry"], reply_markup=markup)
         return
 
     events = calender.get_events(creds, tgid)
@@ -235,9 +248,13 @@ def get_creds(tgid):
 
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-                storage.set_creds(tgid, creds.to_json())
-                return creds
+                try:
+                    creds.refresh(Request())
+                    storage.set_creds(tgid, creds.to_json())
+                    return creds
+                except RefreshError:
+                    logger.warning(f"Google token expired for user {tgid}, need re-auth")
+                    return False
             else:
                 return False
         return creds

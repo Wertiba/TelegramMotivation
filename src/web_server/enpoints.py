@@ -14,7 +14,7 @@ from src.DB.storage import Storage
 from src.services.timezone import Timezone
 from src.tgbot.keyboards import change_timezone_markup
 from src.services.logger import Logger
-from src.web_server.html_response import success_html
+from src.web_server.html_response import success_html, homepage_html
 
 load_dotenv(find_dotenv())
 router = APIRouter()
@@ -72,9 +72,15 @@ async def callback(request: Request):
         scheduler.add_notification(user_tgid, evening_time)
 
         bot.send_message(user_tgid,
-                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings. Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
+                         f'Авторизация прошла успешно! Бот будет присылать уведомления с мотивацией в {MORNING_TIME} и {EVENING_TIME}. Изменить это время можно в /settings. Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup(user_tgid))
     else:
-        bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup())
+        bot.send_message(user_tgid, f'Авторизация прошла успешно! Бот определил ваше время как {user_time}, если он сильно ошибся, то вам нужно изменить его!', reply_markup=change_timezone_markup(user_tgid))
 
     # return RedirectResponse(f"https://t.me/BestMotivationBot?start=authed_{state}")
     return HTMLResponse(content=success_html(), status_code=200)
+
+
+@router.get("/", response_class=HTMLResponse)
+async def main_page():
+    html_content = homepage_html()
+    return HTMLResponse(content=html_content, status_code=200)
