@@ -162,7 +162,7 @@ def get_user_time_for_tz(message, message_id):
     else:
         user_tz = tz.guess_timezone_from_local_time(new_time)
         storage.set_timezone(user_tz, message.chat.id)
-        bot.send_message(message.chat.id, messages[lang]["success_messages"]["change_timezone"] + user_tz)
+        bot.send_message(message.chat.id, messages[lang]["success_messages"]["change_timezone"])
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):

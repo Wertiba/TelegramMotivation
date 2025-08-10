@@ -3,9 +3,9 @@
     "success_messages": {
       "notification_added": "Ежедневное сообщение добавлено!",
       "prompt_added": "Промт добавлен!!",
-      "change_timezone": "Временная зона! Новая временная зона ",
+      "change_timezone": "Временная зона успешно изменена!",
       "disable_notification": "Уведомление отключено",
-      "change_language": "Язык успешно изменён"
+      "change_language": "Язык успешно изменён!"
     },
     "error_messages": {
       "incorrect_time_format": "Неверный формат! Разрешенные форматы ввода: HH:MM, HH, Ip, HH.MM, HH:MM:SS",
@@ -29,10 +29,10 @@
       }
     },
     "system_messages": {
-      "start_register": "И снова здравствуйте!" ,
+      "start_register": "И снова здравствуйте!",
       "start_unregister": "Приветствую! чтобы пользоваться ботом, надо привязать свой календарь",
-      "about": "Это мы",
-      "any_text": "Просто сообщение",
+      "about": "Привет! Это под, который будет отправлять вам мотивационные сообщения каждый день на основе ваших предпочтений, с возможностью выбора времени уведомлений и таймзоны\uD83D\uDD25  \nЕсли вы заметили ошибку, то напишите, пожалуйста, мне @wertiba  \nВы можете ввести /settings, чтобы открыть настройки, иди /motivation, чтобы сразу получить заряд мотивации\uD83D\uDC4D",
+      "any_text": "К сожалению, я пока не умею отвечать на такое\uD83D\uDE13 \nВы можете ввести /settings, чтобы открыть настройки, иди /motivation, чтобы сразу получить заряд мотивации\uD83D\uDC4D",
       "yandex_error": "К сожалению, подключиться к yandex сейчас невозможно, так как нету подходящего API. Функция будет доступна позже"
     },
     "buttons": {
@@ -53,19 +53,19 @@
   "en": {
     "success_messages": {
       "notification_added": "Daily notification added!",
-      "prompt_added": "Prompt added!!",
-      "change_timezone": "Timezone changed! New timezone is ",
+      "prompt_added": "Prompt added!",
+      "change_timezone": "Timezone successfully changed!",
       "disable_notification": "Notification disabled",
-      "change_language": "Language successfully changed"
+      "change_language": "Language successfully changed!"
     },
     "error_messages": {
       "incorrect_time_format": "Invalid format! Allowed input formats: HH:MM, HH, Ip, HH.MM, HH:MM:SS",
-      "re_entry": "please log in again",
-      "need_login": "First you need to link your calendar!",
-      "only_text": "Please send the text!"
+      "re_entry": "You need to log in again to continue",
+      "need_login": "First, you need to link your calendar!",
+      "only_text": "Please send text only!"
     },
     "info_messages": {
-      "current_settings": "current settings:",
+      "current_settings": "Current settings:",
       "select_time": "Select the time you want to change",
       "select_language": "Выберите ваш язык | Choose your language",
       "get_info_about_user": "Okay, send a text telling the neural network about yourself to receive more personalized responses",
@@ -82,19 +82,19 @@
     "system_messages": {
       "start_register": "Hello again!",
       "start_unregister": "Welcome! To use the bot, you need to link your calendar",
-      "about": "that's us",
-      "any_text": "Just a message",
+      "about": "Hello! This is a bot that will send you motivational messages every day based on your preferences, with the ability to choose notification times and timezones\uD83D\uDD25\nIf you notice an error, please contact me @wertiba\nYou can enter /settings to open settings, or /motivation to instantly get a boost of motivation\uD83D\uDC4D",
+      "any_text": "Unfortunately, I can't respond to that yet\uD83D\uDE13\nYou can enter /settings to open settings, or /motivation to instantly get a boost of motivation\uD83D\uDC4D",
       "yandex_error": "Unfortunately, it is impossible to connect to Yandex now, as there is no suitable API. The function will be available later"
     },
     "buttons": {
-      "google_button": "Link google",
-      "yandex_button": "Link yandex",
+      "google_button": "Link Google",
+      "yandex_button": "Link Yandex",
       "retry_login": "Retry login",
       "get_new_time_for_timezone": "Enter your own time",
       "change_language": "Change language",
       "reset_notify_time": "Change motivational messages time",
       "change_info_about_user": "Change information about yourself",
-      "reset_calendar": "Заново привязать google календар",
+      "reset_calendar": "Relink Google Calendar",
       "ru": "Русский\uD83C\uDDF7\uD83C\uDDFA",
       "en": "English\uD83C\uDDEC\uD83C\uDDE7",
       "add_new_time": "Add time",
