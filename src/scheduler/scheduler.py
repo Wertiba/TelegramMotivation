@@ -64,7 +64,7 @@ class MessageScheduler:
 
         for n in notifications:
             idnotifications, idusers, notify_time = n
-            tgid = self.storage.get_tgid(idusers)
+            tgid = self.storage.get_tgid(idusers)[0]
             total_seconds = int(notify_time.total_seconds())
             hours = (total_seconds // 3600) % 24
             minutes = (total_seconds % 3600) // 60

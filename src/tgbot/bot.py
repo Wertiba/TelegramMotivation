@@ -235,7 +235,7 @@ def motivation_functional(tgid, msgid=None):
     idusers = storage.get_idusers(tgid)
     storage.save_request(idusers, 'user', prompt)
     motivation = gemma.process_prompt(idusers, prompt)
-    bot.send_message(tgid[0], motivation, parse_mode='Markdown') if not msgid else bot.edit_message_text(motivation, tgid, msgid.message_id)
+    bot.send_message(tgid, motivation, parse_mode='Markdown') if not msgid else bot.edit_message_text(motivation, tgid, msgid.message_id)
 
 
 def get_creds(tgid):
