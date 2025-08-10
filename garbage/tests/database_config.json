@@ -1,8 +1,0 @@
-{"charset": "utf8mb4",
-"port": 3306,
-"mincached": 1,
-"maxcached": 5,
-"maxconnections": 10,
-"blocking": "true",
-"ping": 1
-}

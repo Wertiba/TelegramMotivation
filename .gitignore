@@ -40,7 +40,7 @@ settings/database_config.py
 settings/credentials.json
 settings/bot_config.py
 garbage/
-garbage/tests/
+/garbage/tests/
 TelegramMotivationDB.mwb.bak
 TelegramMotivationDB.mwb
 debug.txt
