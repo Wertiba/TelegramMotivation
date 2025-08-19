@@ -46,7 +46,7 @@ TelegramMotivationDB.mwb
 debug.txt
 ngrok.exe
 /credentials.json
-
+.idea
 
 # Environment variables
 .env

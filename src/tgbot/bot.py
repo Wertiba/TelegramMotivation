@@ -29,7 +29,7 @@ bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 logger = Logger().get_logger()
 calender = CalenderClient()
-gemma = OllamaClient(url, model)
+ai = OllamaClient(url, model)
 tz = Timezone(SERVER_TIMEZONE)
 
 with open(MESSAGES_PATH, encoding='utf-8') as f:
@@ -234,7 +234,7 @@ def motivation_functional(tgid, msgid=None):
     prompt = str(events)
     idusers = storage.get_idusers(tgid)
     storage.save_request(idusers, 'user', prompt)
-    motivation = gemma.process_prompt(idusers, prompt)
+    motivation = ai.process_prompt(idusers, prompt)
     bot.send_message(tgid, motivation, parse_mode='Markdown') if not msgid else bot.edit_message_text(motivation, tgid, msgid.message_id)
 
 

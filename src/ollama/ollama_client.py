@@ -35,11 +35,11 @@ class OllamaClient:
     def get_message(self, content, idusers):
         memory_content = self.storage.get_memory_prompt(idusers)
         language = self.storage.get_language(idusers)
-        history = self.get_history(idusers)
+        # history = self.get_history(idusers)
         memory_prompt = [{"role": "user_info", "content": memory_content[0]}] if memory_content and memory_content[0] else list()
         language_prompt = [{"role": "system", "name": "language", "content": language[0][0]}] if language and language[0] else list()
         user_prompt = [{"role": "user", "content": content}]
-        message = [system_prompt] + language_prompt + memory_prompt + few_shot + history + user_prompt
+        message = [system_prompt] + language_prompt + memory_prompt + user_prompt
         return message
 
     def process_prompt(self, idusers, content):
