@@ -16,6 +16,7 @@ from src.services.timezone import Timezone
 from src.google_integration.o2auth import Authentication
 from src.google_integration.calender_client import CalenderClient
 from src.ollama.ollama_client import OllamaClient
+from src.gigachat.giga_client import GigaClient
 from src.DB.storage import Storage
 from src.scheduler.scheduler import MessageScheduler
 from src.tgbot.keyboards import auth_markup, retry_login_markup, change_timezone_markup, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
@@ -29,7 +30,7 @@ bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 logger = Logger().get_logger()
 calender = CalenderClient()
-ai = OllamaClient(url, model)
+ai = GigaClient()
 tz = Timezone(SERVER_TIMEZONE)
 
 with open(MESSAGES_PATH, encoding='utf-8') as f:
