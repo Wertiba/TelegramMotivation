@@ -2,22 +2,18 @@ import os
 import re
 
 from dotenv import load_dotenv, find_dotenv
-from gigachat import GigaChat
 from settings.config import charset, port
-from settings.ollama_settings import system_prompt, temperarure, few_shot
+from settings.ollama_settings import system_prompt
 from src.DB.storage import Storage
 from src.services.logger import Logger
 from src.services.singleton import singleton
 
 
-@singleton
-class GigaClient:
+class LLMClient:
     def __init__(self):
         load_dotenv(find_dotenv())
-        self.key = os.getenv("GIGA_KEY")
         self.logger = Logger().get_logger()
-        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'),
-                               os.getenv('DB_NAME'), charset, port=port)
+        self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
     def get_history(self, idusers):
         history = list()
@@ -40,14 +36,3 @@ class GigaClient:
         user_prompt = [{"role": "user", "content": content}]
         message = [system_prompt] + language_prompt + memory_prompt + user_prompt
         return message
-
-    def process_prompt(self, idusers, content):
-        try:
-            message = self.get_message(content, idusers)
-            prompt = "\n".join([m["content"] for m in message if "content" in m])
-            with GigaChat(credentials=self.key, verify_ssl_certs=False) as giga:
-                response = giga.chat(prompt).choices[0].message.content
-                return response
-
-        except Exception as e:
-            self.logger.error(f"Error while Gigachat processing request: {e}")

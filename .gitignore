@@ -41,10 +41,10 @@ settings/credentials.json
 settings/bot_config.py
 garbage/
 /garbage/tests/
-TelegramMotivationDB.mwb.bak
-TelegramMotivationDB.mwb
+garbage/TelegramMotivationDB.mwb.bak
+garbage/TelegramMotivationDB.mwb
 debug.txt
-ngrok.exe
+garbage/ngrok.exe
 /credentials.json
 .idea
 

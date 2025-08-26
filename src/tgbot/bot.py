@@ -10,13 +10,11 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google.auth.exceptions import RefreshError
 from settings.config import SCOPES, SERVER_TIMEZONE, charset, port, MESSAGES_PATH
-from settings.ollama_settings import model, url
 from src.services.logger import Logger
 from src.services.timezone import Timezone
 from src.google_integration.o2auth import Authentication
 from src.google_integration.calender_client import CalenderClient
-from src.ollama.ollama_client import OllamaClient
-from src.gigachat.giga_client import GigaClient
+from src.AI.giga_client import GigaClient
 from src.DB.storage import Storage
 from src.scheduler.scheduler import MessageScheduler
 from src.tgbot.keyboards import auth_markup, retry_login_markup, change_timezone_markup, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
