@@ -24,4 +24,4 @@
 - **MySQL** — база данных
 - **Google OAuth 2.0**
 - **Ollama** — локальный AI
-
+- - **Gigachat** — основная LLM
