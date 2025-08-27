@@ -10,8 +10,8 @@ from src.services.logger import Logger
 
 class LLMClient:
     def __init__(self):
-        load_dotenv(find_dotenv())
         self.logger = Logger().get_logger()
+        load_dotenv(find_dotenv())
         self.storage = Storage(os.getenv('DB_HOST'), os.getenv('DB_USER'), os.getenv('DB_PASSWORD'), os.getenv('DB_NAME'), charset, port=port)
 
     def get_history(self, idusers):
@@ -29,9 +29,19 @@ class LLMClient:
     def get_message(self, content, idusers):
         memory_content = self.storage.get_memory_prompt(idusers)
         language = self.storage.get_language(idusers)
-        # history = self.get_history(idusers)
-        memory_prompt = [{"role": "user_info", "content": memory_content[0]}] if memory_content and memory_content[0] else list()
-        language_prompt = [{"role": "system", "name": "language", "content": language[0][0]}] if language and language[0] else list()
         user_prompt = [{"role": "user", "content": content}]
-        message = [SYSTEM_PROMPT] + language_prompt + memory_prompt + user_prompt
-        return message
+        system_parts = [SYSTEM_PROMPT]
+        # history = self.get_history(idusers)
+
+        if language and language[0]:
+            system_parts.append(f"Preferred language: {language[0][0]}")
+
+        if memory_content and memory_content[0]:
+            system_parts.append(f"User style/preferences: {memory_content[0]}")
+
+        system_message = {
+            "role": "system",
+            "content": " | ".join(system_parts)
+        }
+
+        return [system_message] + user_prompt
