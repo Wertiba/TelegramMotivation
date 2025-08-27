@@ -1,9 +1,9 @@
 import requests
 import json
 
-from settings.ollama_settings import temperarure
+from settings.llm_settings import TEMPERATURE
 from src.services.singleton import singleton
-from src.AI.llm_client import LLMClient
+from src.LLM.llm_client import LLMClient
 
 @singleton
 class OllamaClient(LLMClient):
@@ -17,7 +17,7 @@ class OllamaClient(LLMClient):
         payload = {
             "model": self.model,
             "messages": message,
-            'temperature': temperarure
+            'temperature': TEMPERATURE
         }
 
         response = requests.post(self.url, json=payload, stream=True)

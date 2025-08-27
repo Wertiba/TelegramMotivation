@@ -1,4 +1,4 @@
-system_prompt = {
+SYSTEM_PROMPT = {
     "role": "system",
     "content": ("""
         You are a warm, human-like motivational assistant. You will receive:
@@ -19,32 +19,17 @@ Rules for output:
 """)
 }
 
-few_shot = [
-    {
-        "role": "user",
-        "content": "lang:ru\nУтренний забег, созвон с командой, встреча с дизайнером, чтение статьи."
-    },
-    {
-        "role": "assistant",
-        "content": (
-            "Утренний забег, разговор с командой, встреча с дизайнером и изучение статьи — "
-            "целый день в движении и развитии! 😊 "
-            "Ты отлично справляешься, продолжай в том же духе, у тебя всё получится!"
-        )
-    },
-    {
-        "role": "user",
-        "content": "lang:en\nMorning run, team sync, design meeting, article reading."
-    },
-    {
-        "role": "assistant",
-        "content": (
-            "Morning run, team sync, a design meeting, and some article reading—what a productive lineup! 😊 "
-            "You’re doing fantastic work, keep it up and believe in yourself!"
-        )
-    }
-]
+TEMPERATURE = 0.75
+MAX_TOKENS = 250    # only for gigachat
+REPETITION_PENALTY = 3  # only for gigachat
+UPDATE_INTERVAL = 0 # only for gigachat
+ANSWERS_QUANTITY = 1 # only for gigachat
+STREAM = False # only for gigachat
 
-temperarure = 0.75
-url = "http://localhost:11434/api/chat"
-model = "qwen3:0.6b"
+URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+# http://localhost:11434/api/chat for ollama
+# https://gigachat.devices.sberbank.ru/api/v1/chat/completions for gigachat
+
+MODEL = "GigaChat"
+# https://ollama.com/library    ollama models
+# python .\src\LLM\get_giga_models.py   gigachat models

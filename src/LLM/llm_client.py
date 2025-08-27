@@ -3,10 +3,9 @@ import re
 
 from dotenv import load_dotenv, find_dotenv
 from settings.config import charset, port
-from settings.ollama_settings import system_prompt
+from settings.llm_settings import SYSTEM_PROMPT
 from src.DB.storage import Storage
 from src.services.logger import Logger
-from src.services.singleton import singleton
 
 
 class LLMClient:
@@ -34,5 +33,5 @@ class LLMClient:
         memory_prompt = [{"role": "user_info", "content": memory_content[0]}] if memory_content and memory_content[0] else list()
         language_prompt = [{"role": "system", "name": "language", "content": language[0][0]}] if language and language[0] else list()
         user_prompt = [{"role": "user", "content": content}]
-        message = [system_prompt] + language_prompt + memory_prompt + user_prompt
+        message = [SYSTEM_PROMPT] + language_prompt + memory_prompt + user_prompt
         return message

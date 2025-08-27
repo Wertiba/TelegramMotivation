@@ -6,6 +6,7 @@ REDIRECT_URI = "http://localhost/oauth2callback"
 CREDS_PATH = r"C:\Users\Wertiba\PycharmProjects\TelegramMotivation\garbage\test_creds.json"
 
 SERVER_TIMEZONE = "Europe/Moscow"
+MAX_RESPONSE_TOKENS = 250
 MAX_EVENTS = 10
 MORNING_TIME = '9:00'
 EVENING_TIME = '20:00'

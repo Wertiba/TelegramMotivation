@@ -14,7 +14,7 @@ from src.services.logger import Logger
 from src.services.timezone import Timezone
 from src.google_integration.o2auth import Authentication
 from src.google_integration.calender_client import CalenderClient
-from src.AI.giga_client import GigaClient
+from src.LLM.giga_client import GigaClient
 from src.DB.storage import Storage
 from src.scheduler.scheduler import MessageScheduler
 from src.tgbot.keyboards import auth_markup, retry_login_markup, change_timezone_markup, settings_markup, select_language_markup, select_notification_time_markup, delete_notification_markup
@@ -220,6 +220,7 @@ def callback_query(call):
     elif level == 'change_tz':
         bot.edit_message_text(messages[lang]["info_messages"]["get_new_time_for_timezone"], tgid, call.message.message_id, reply_markup=None)
         bot.register_next_step_handler(call.message, get_user_time_for_tz, call.message.message_id)
+
 
 def motivation_functional(tgid, msgid=None):
     creds = get_creds(tgid)
